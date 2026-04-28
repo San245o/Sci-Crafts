@@ -204,10 +204,7 @@ type ThreeDTitleProps = {
 function ThreeDTitle({ onReady, play }: ThreeDTitleProps) {
   const mainGroupRef = useRef<THREE.Group>(null);
   const { viewport } = useThree();
-  const isMobileViewport = viewport.width < 7;
-  const textScale = isMobileViewport
-    ? Math.min(3.05, viewport.width / 4.35, viewport.height / 1.85)
-    : Math.min(3.12, viewport.width / 6.2, viewport.height / 2.45);
+  const textScale = Math.min(2.72, viewport.width / 6.85, viewport.height / 2.9);
   const textScaleX = textScale * 1.04;
   const textX = viewport.width > 10 ? 0.22 : 0;
 
@@ -246,9 +243,9 @@ type Loader3DTextProps = {
 
 function Loader3DText({ onReady, play }: Loader3DTextProps) {
   return (
-    <div className="h-[34svh] min-h-[260px] w-[calc(100vw-2rem)] max-w-[820px] translate-x-0 py-2 sm:h-[38svh] sm:min-h-[300px] sm:w-[min(96vw,940px)] md:h-[70svh] md:min-h-[540px] md:w-[min(96vw,1480px)] md:max-w-none md:translate-x-[1vw] md:py-0 lg:h-[74svh]">
+    <div className="h-[48svh] min-h-72 w-[calc(100vw-1rem)] max-w-[820px] translate-x-0 sm:h-[52svh] sm:w-[min(98vw,940px)] md:h-[66svh] md:min-h-[500px] md:w-[min(94vw,1360px)] md:max-w-none md:translate-x-[1vw] lg:h-[70svh]">
       <Canvas
-        camera={{ position: [0, 0, 11.8], fov: 48 }}
+        camera={{ position: [0, 0, 12.0], fov: 48 }}
         dpr={[1, 1.5]}
         gl={{ alpha: true, antialias: true, powerPreference: "high-performance" }}
       >
@@ -375,13 +372,13 @@ export function LoadingScreen() {
     >
       <div
         ref={contentRef}
-        className="invisible relative z-10 grid h-[100svh] grid-cols-1 grid-rows-[40fr_60fr] items-center gap-1 px-4 py-6 opacity-0 sm:px-8 md:min-h-[100svh] md:grid-cols-[0.52fr_1.48fr] md:grid-rows-1 md:gap-6 md:px-10 md:py-0 lg:px-12"
+        className="invisible relative z-10 grid min-h-[100svh] grid-cols-1 grid-rows-[0.78fr_1.22fr] items-center gap-1 px-4 py-6 opacity-0 sm:px-8 md:grid-cols-[0.52fr_1.48fr] md:grid-rows-1 md:gap-6 md:px-10 md:py-0 lg:px-12"
       >
         <div className="flex -translate-y-6 flex-col items-center justify-center gap-9 md:-translate-y-10 md:gap-11">
           <svg
             ref={svgRef}
             viewBox="-1 -1 103 103"
-            className="h-44 w-44 overflow-visible fill-none sm:h-48 sm:w-48 md:h-72 md:w-72"
+            className="h-52 w-52 overflow-visible fill-none sm:h-56 sm:w-56 md:h-80 md:w-80"
           >
             <defs>
               <linearGradient
@@ -439,10 +436,10 @@ export function LoadingScreen() {
         style={{
           backgroundImage: "url('/noise.png')",
           backgroundRepeat: "repeat",
-          backgroundSize: "72px 72px",
+          backgroundSize: "96px 96px",
           imageRendering: "pixelated",
-          mixBlendMode: "overlay",
-          opacity: 0.38,
+          mixBlendMode: "soft-light",
+          opacity: 0.28,
         }}
       />
 
