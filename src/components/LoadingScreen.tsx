@@ -1,20 +1,30 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import {
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { Canvas, useThree } from "@react-three/fiber";
 import { Text3D, useFont } from "@react-three/drei";
 import * as THREE from "three";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
-import { DrawSVGPlugin } from "gsap/DrawSVGPlugin";
-import { ScrambleTextPlugin } from "gsap/ScrambleTextPlugin";
 
-gsap.registerPlugin(useGSAP, DrawSVGPlugin, ScrambleTextPlugin);
+gsap.registerPlugin(useGSAP);
 
-const fontPath = "/fonts/helvetiker_bold.typeface.json";
-const textExitStart = 2.05;
-const loaderExitStart = 2.8;
+const fontPath = "/fonts/droid_sans_bold.typeface.json";
 const red = "#ef4444";
+
+const loaderTiming = {
+  textExitStart: 1.72,
+  loaderExitStart: 2.44,
+  countDuration: 1.86,
+  stageInDuration: 0.56,
+};
 
 useFont.preload(fontPath);
 
@@ -23,6 +33,8 @@ type TextLine3DProps = {
   y: number;
   delay: number;
   play: boolean;
+  lineScale?: number;
+  x?: number;
 };
 
 type LetterLayout = {
@@ -33,18 +45,25 @@ type LetterLayout = {
 
 function getLetterWidth(letter: string) {
   const lower = letter.toLowerCase();
-  const letterSpacing = 0.18;
+  const letterSpacing = 0.2;
 
   if (letter === " ") return 0.48;
   if (lower === "i" || lower === "l") return 0.34 + letterSpacing;
-  if (lower === "-") return 0.48 + letterSpacing;
-  if (lower === "f" || lower === "t") return 0.56 + letterSpacing;
-  if (lower === "m" || lower === "w") return 0.9 + letterSpacing;
+  if (lower === "-") return 0.46 + letterSpacing;
+  if (lower === "f" || lower === "t") return 0.58 + letterSpacing;
+  if (lower === "m" || lower === "w") return 0.92 + letterSpacing;
 
-  return 0.72 + letterSpacing;
+  return 0.7 + letterSpacing;
 }
 
-function TextLine3D({ text, y, delay, play }: TextLine3DProps) {
+function TextLine3D({
+  text,
+  y,
+  delay,
+  play,
+  lineScale = 1,
+  x = 0,
+}: TextLine3DProps) {
   const groupRef = useRef<THREE.Group>(null);
   const lettersRef = useRef<THREE.Mesh[]>([]);
 
@@ -70,12 +89,12 @@ function TextLine3D({ text, y, delay, play }: TextLine3DProps) {
 
     gsap.set(
       meshes.map((mesh) => mesh.position),
-      { y: -1.4, z: -2.2 },
+      { y: -1.7, z: -3.2 },
     );
 
     gsap.set(
       meshes.map((mesh) => mesh.rotation),
-      { x: 1.15, y: -0.7, z: 0.28 },
+      { x: 0.9, y: -1.05, z: 0.24 },
     );
 
     gsap.set(
@@ -87,22 +106,40 @@ function TextLine3D({ text, y, delay, play }: TextLine3DProps) {
 
     if (groupRef.current) groupRef.current.visible = true;
 
-    const tl = gsap.timeline({ delay, defaults: { ease: "power4.out" } });
+    const timing = {
+      inDuration: 0.7,
+      rotateDuration: 0.78,
+      scaleDuration: 0.62,
+      exitStart: loaderTiming.textExitStart,
+      exitDuration: 0.48,
+      inStagger: 0.038,
+      outStagger: 0.024,
+    };
+
+    const tl = gsap.timeline({
+      delay,
+      defaults: { ease: "power4.out" },
+    });
 
     tl.to(
-      meshes.map((m) => m.position),
-      { y: 0, z: 0, duration: 0.86, stagger: { each: 0.045, from: "start" } },
-      0,
-    )
+        meshes.map((m) => m.position),
+        {
+          y: 0,
+          z: 0,
+          duration: timing.inDuration,
+          stagger: { each: timing.inStagger, from: "center" },
+        },
+        0,
+      )
       .to(
         meshes.map((m) => m.rotation),
         {
           x: 0,
           y: 0,
           z: 0,
-          duration: 0.92,
-          ease: "back.out(1.8)",
-          stagger: { each: 0.045, from: "start" },
+          duration: timing.rotateDuration,
+          ease: "back.out(1.35)",
+          stagger: { each: timing.inStagger, from: "center" },
         },
         0,
       )
@@ -112,9 +149,9 @@ function TextLine3D({ text, y, delay, play }: TextLine3DProps) {
           x: 1,
           y: 1,
           z: 1,
-          duration: 0.72,
-          ease: "back.out(2)",
-          stagger: { each: 0.045, from: "start" },
+          duration: timing.scaleDuration,
+          ease: "back.out(1.55)",
+          stagger: { each: timing.inStagger, from: "center" },
         },
         0,
       )
@@ -123,11 +160,11 @@ function TextLine3D({ text, y, delay, play }: TextLine3DProps) {
         {
           y: 1.8,
           z: -1.2,
-          duration: 0.56,
+          duration: timing.exitDuration,
           ease: "power3.in",
-          stagger: { each: 0.026, from: "start" },
+          stagger: { each: timing.outStagger, from: "edges" },
         },
-        textExitStart,
+        timing.exitStart,
       )
       .to(
         meshes.map((m) => m.rotation),
@@ -135,11 +172,11 @@ function TextLine3D({ text, y, delay, play }: TextLine3DProps) {
           x: -1.1,
           y: 0.75,
           z: -0.3,
-          duration: 0.56,
+          duration: timing.exitDuration,
           ease: "power3.in",
-          stagger: { each: 0.026, from: "start" },
+          stagger: { each: timing.outStagger, from: "edges" },
         },
-        textExitStart,
+        timing.exitStart,
       )
       .to(
         meshes.map((m) => m.scale),
@@ -147,11 +184,11 @@ function TextLine3D({ text, y, delay, play }: TextLine3DProps) {
           x: 0,
           y: 0,
           z: 0,
-          duration: 0.56,
+          duration: timing.exitDuration,
           ease: "power3.in",
-          stagger: { each: 0.026, from: "start" },
+          stagger: { each: timing.outStagger, from: "edges" },
         },
-        textExitStart,
+        timing.exitStart,
       );
 
     return () => {
@@ -160,7 +197,7 @@ function TextLine3D({ text, y, delay, play }: TextLine3DProps) {
   }, [delay, play]);
 
   return (
-    <group ref={groupRef} position={[0, y, 0]} visible={false}>
+    <group ref={groupRef} position={[x, y, 0]} scale={lineScale} visible={false}>
       {letters.map(({ index, letter, position }) => {
         if (letter === " ") return null;
 
@@ -171,23 +208,23 @@ function TextLine3D({ text, y, delay, play }: TextLine3DProps) {
               if (node) lettersRef.current[index] = node;
             }}
             font={fontPath}
-            size={1}
-            height={0.46}
-            curveSegments={10}
+            size={1.12}
+            height={1.02}
+            curveSegments={6}
             bevelEnabled
             bevelThickness={0.045}
-            bevelSize={0.028}
+            bevelSize={0.022}
             bevelOffset={0}
-            bevelSegments={3}
+            bevelSegments={2}
             position={position}
           >
             {letter}
             <meshStandardMaterial
-              color="#ef2f2f"
-              emissive="#7f0000"
-              emissiveIntensity={0.18}
-              metalness={0.2}
-              roughness={0.26}
+              color="#ff2a2a"
+              emissive="#000000"
+              emissiveIntensity={0.05}
+              metalness={0.5}
+              roughness={0.31}
             />
           </Text3D>
         );
@@ -199,14 +236,16 @@ function TextLine3D({ text, y, delay, play }: TextLine3DProps) {
 type ThreeDTitleProps = {
   onReady: () => void;
   play: boolean;
+  fast: boolean;
 };
 
-function ThreeDTitle({ onReady, play }: ThreeDTitleProps) {
+function ThreeDTitle({ onReady, play, fast }: ThreeDTitleProps) {
   const mainGroupRef = useRef<THREE.Group>(null);
   const { viewport } = useThree();
-  const textScale = Math.min(2.72, viewport.width / 6.85, viewport.height / 2.9);
-  const textScaleX = textScale * 1.04;
-  const textX = viewport.width > 10 ? 0.22 : 0;
+  const textScale = fast
+    ? Math.min(2.42, viewport.width / 7.05, viewport.height / 2.9)
+    : Math.min(2.8, viewport.width / 5.8, viewport.height / 2.4);
+  const textScaleX = textScale * 0.96;
 
   useEffect(() => {
     onReady();
@@ -218,20 +257,33 @@ function ThreeDTitle({ onReady, play }: ThreeDTitleProps) {
 
     gsap.fromTo(
       mainGroupRef.current.rotation,
-      { x: 0.12, y: -0.62, z: 0.04 },
-      { x: 0.12, y: -0.42, z: 0.04, duration: 1.1, ease: "power3.inOut" },
+      { x: 0.08, y: -0.42, z: -0.05 },
+      {
+        x: 0.08,
+        y: -0.2,
+        z: -0.05,
+        duration: 0.95,
+        ease: "power3.inOut",
+      },
     );
   }, [play]);
 
   return (
     <group
       ref={mainGroupRef}
-      position={[textX, -0.08, 0]}
-      rotation={[0.12, -0.42, 0.04]}
+      position={[0, fast ? -0.34 : -0.64, 0]}
+      rotation={[0.08, -0.2, -0.05]}
       scale={[textScaleX, textScale, textScale]}
     >
       <TextLine3D text="SCI-FI" y={0.64} delay={0} play={play} />
-      <TextLine3D text="CRAFTS" y={-0.64} delay={0.06} play={play} />
+      <TextLine3D
+        text="CRAFTS"
+        y={-0.64}
+        delay={0.06}
+        play={play}
+        lineScale={0.94}
+        x={0.16}
+      />
     </group>
   );
 }
@@ -239,25 +291,24 @@ function ThreeDTitle({ onReady, play }: ThreeDTitleProps) {
 type Loader3DTextProps = {
   onReady: () => void;
   play: boolean;
+  fast: boolean;
 };
 
-function Loader3DText({ onReady, play }: Loader3DTextProps) {
+function Loader3DText({ onReady, play, fast }: Loader3DTextProps) {
   return (
-    <div className="h-[48svh] min-h-72 w-[calc(100vw-1rem)] max-w-[820px] translate-x-0 sm:h-[52svh] sm:w-[min(98vw,940px)] md:h-[66svh] md:min-h-[500px] md:w-[min(94vw,1360px)] md:max-w-none md:translate-x-[1vw] lg:h-[70svh]">
+    <div className="h-[56svh] min-h-[320px] w-[min(118vw,1200px)] shrink-0 sm:h-[56svh] sm:min-h-80 sm:w-[min(110vw,1200px)] md:h-[62svh] md:min-h-[480px] lg:h-[66svh]">
       <Canvas
-        camera={{ position: [0, 0, 12.0], fov: 48 }}
+        camera={{ position: [0, 0, fast ? 14.8 : 14.75], fov: fast ? 40 : 42 }}
         dpr={[1, 1.5]}
         gl={{ alpha: true, antialias: true, powerPreference: "high-performance" }}
       >
-        <ambientLight intensity={1.35} />
-        <directionalLight position={[4, 5, 5]} intensity={5.5} />
-        <pointLight position={[0, 3, 4]} intensity={4.5} color={red} />
-        <pointLight position={[4, -2, 4]} intensity={5.5} color="#d946ef" />
-        <pointLight position={[-5, 2, 4]} intensity={3.2} color="#38bdf8" />
-        <pointLight position={[0, -4, 5]} intensity={2.5} color="#ffffff" />
+        <ambientLight intensity={1.1} />
+        <directionalLight position={[4, 5, 5]} intensity={5.8} />
+        <pointLight position={[0, 2, 5]} intensity={3.8} color={red} />
+        <pointLight position={[-4, -2, 5]} intensity={1.8} color="#ffffff" />
 
         <Suspense fallback={null}>
-          <ThreeDTitle onReady={onReady} play={play} />
+          <ThreeDTitle onReady={onReady} play={play} fast={fast} />
         </Suspense>
       </Canvas>
     </div>
@@ -267,96 +318,142 @@ function Loader3DText({ onReady, play }: Loader3DTextProps) {
 export function LoadingScreen() {
   const loaderRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-  const svgRef = useRef<SVGSVGElement>(null);
-  const scrambleRef = useRef<HTMLDivElement>(null);
+  const counterRef = useRef<HTMLDivElement>(null);
   const [threeReady, setThreeReady] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const handleThreeReady = useCallback(() => setThreeReady(true), []);
+
+  useEffect(() => {
+    const query = window.matchMedia("(max-width: 640px)");
+    const updateIsMobile = () => setIsMobile(query.matches);
+
+    updateIsMobile();
+    query.addEventListener("change", updateIsMobile);
+
+    return () => {
+      query.removeEventListener("change", updateIsMobile);
+    };
+  }, []);
 
   useGSAP(
     () => {
       const scope = loaderRef.current;
       if (!scope || !threeReady) return;
 
-      const select = <T extends Element>(selector: string) =>
-        scope.querySelector<T>(selector);
+      const counterText = counterRef.current;
+      const stageItems = Array.from(
+        scope.querySelectorAll<HTMLElement>(".loader-stage-item"),
+      );
+      const shutterPanels = Array.from(
+        scope.querySelectorAll<HTMLElement>(".loader-shutter"),
+      );
 
-      const diamondMark = select<SVGGElement>(".diamond-mark");
-      const diamondPath = select<SVGPathElement>(".diamond-path");
-      const scrambleText = scrambleRef.current;
+      if (!counterText) {
+        return;
+      }
 
-      if (!diamondMark || !diamondPath || !scrambleText) return;
+      const prefersReducedMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      ).matches;
+      const counter = { value: 0 };
 
       gsap.set(contentRef.current, { autoAlpha: 1 });
-      gsap.set(diamondMark, { opacity: 0, transformOrigin: "50% 50%" });
-      gsap.set(diamondPath, { drawSVG: "0% 0%" });
-      gsap.set(scrambleText, { opacity: 0, y: 8 });
+      gsap.set(counterText, { opacity: 0, y: 10 });
+      gsap.set(stageItems, { autoAlpha: 0, y: 22 });
+      gsap.set(shutterPanels, { scaleY: 0, transformOrigin: "50% 100%" });
+
+      if (prefersReducedMotion) {
+        counterText.textContent = "100";
+        gsap.set([counterText, stageItems], {
+          opacity: 1,
+          y: 0,
+        });
+        gsap.to(loaderRef.current, {
+          autoAlpha: 0,
+          delay: 0.55,
+          duration: 0.28,
+          onComplete: () => {
+            window.dispatchEvent(new Event("sci-crafts-loader-complete"));
+          },
+        });
+        return;
+      }
 
       const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
 
       tl
-        .fromTo(
-          diamondMark,
-          { scale: 0.96, opacity: 0 },
-          { scale: 1, opacity: 1, duration: 0.3, ease: "power2.out" },
-          0,
-        )
         .to(
-          diamondPath,
+          stageItems,
           {
-            drawSVG: "100%",
-            duration: 1.25,
-            ease: "power3.inOut",
-          },
-          0,
-        )
-        .fromTo(
-          scrambleText,
-          { opacity: 0, y: 8 },
-          {
-            opacity: 1,
+            autoAlpha: 1,
             y: 0,
-            duration: 0.25,
-            ease: "power2.out",
+            duration: loaderTiming.stageInDuration,
+            stagger: { each: 0.08, from: "center" },
+            ease: "power4.out",
           },
-          0.38,
+          0.08,
         )
         .to(
-          scrambleText,
+          counterText,
+          { opacity: 1, y: 0, duration: 0.28, ease: "power2.out" },
+          0.22,
+        )
+        .to(
+          counter,
           {
-            duration: 1.05,
-            scrambleText: {
-              text: "Bring 3D IRL",
-              chars: "X0",
-              speed: 0.45,
+            value: 100,
+            duration: loaderTiming.countDuration,
+            ease: "power3.inOut",
+            onUpdate: () => {
+              counterText.textContent = Math.round(counter.value)
+                .toString()
+                .padStart(3, "0");
             },
           },
-          0.55,
+          0.26,
         )
         .to(
-          svgRef.current,
-          { scale: 1.08, opacity: 0, duration: 0.62, ease: "power2.inOut" },
-          textExitStart,
+          counterText,
+          {
+            autoAlpha: 0,
+            y: -10,
+            duration: 0.34,
+            ease: "power2.in",
+          },
+          loaderTiming.textExitStart + 0.1,
         )
         .to(
-          diamondPath,
-          { drawSVG: "100% 100%", duration: 0.62, ease: "power2.inOut" },
-          textExitStart,
+          stageItems,
+          {
+            autoAlpha: 0,
+            y: -18,
+            duration: 0.48,
+            stagger: { each: 0.04, from: "edges" },
+            ease: "power3.in",
+          },
+          loaderTiming.textExitStart + 0.04,
         )
         .to(
-          scrambleText,
-          { opacity: 0, y: -8, duration: 0.4, ease: "power2.in" },
-          textExitStart,
+          shutterPanels,
+          {
+            scaleY: 1,
+            duration: 0.46,
+            ease: "power4.inOut",
+            stagger: { each: 0.045, from: "end" },
+          },
+          loaderTiming.loaderExitStart - 0.38,
         )
         .to(
           loaderRef.current,
           {
-            yPercent: -100,
-            duration: 0.5,
+            yPercent: -101,
+            duration: 0.7,
             ease: "power4.inOut",
             onComplete: () => {
               window.dispatchEvent(new Event("sci-crafts-loader-complete"));
             },
           },
-          loaderExitStart,
+          loaderTiming.loaderExitStart + 0.08,
         );
     },
     { dependencies: [threeReady], scope: loaderRef },
@@ -365,84 +462,55 @@ export function LoadingScreen() {
   return (
     <div
       ref={loaderRef}
-      className="fixed inset-0 z-50 overflow-hidden will-change-transform border-16 border-[#D22F2F]"
-      style={{ backgroundColor: "#252323" }}
+      className="fixed inset-0 z-50 overflow-hidden border-[12px] border-[#dc2626] bg-[#161515] text-[#fff4f1] will-change-transform sm:border-[16px]"
       aria-label="Loading Sci-Fi Crafts"
       role="status"
     >
       <div
         ref={contentRef}
-        className="invisible relative z-10 grid min-h-[100svh] grid-cols-1 grid-rows-[0.78fr_1.22fr] items-center gap-1 px-4 py-6 opacity-0 sm:px-8 md:grid-cols-[0.52fr_1.48fr] md:grid-rows-1 md:gap-6 md:px-10 md:py-0 lg:px-12"
+        className="invisible relative z-10 flex min-h-[100svh] flex-col justify-between px-5 py-8 opacity-0 sm:px-10 md:px-14 md:py-11"
       >
-        <div className="flex -translate-y-6 flex-col items-center justify-center gap-9 md:-translate-y-10 md:gap-11">
-          <svg
-            ref={svgRef}
-            viewBox="-1 -1 103 103"
-            className="h-52 w-52 overflow-visible fill-none sm:h-56 sm:w-56 md:h-80 md:w-80"
-          >
-            <defs>
-              <linearGradient
-                id="diamondStroke"
-                x1="0"
-                y1="0"
-                x2="100"
-                y2="100"
-                gradientUnits="userSpaceOnUse"
-              >
-                <stop offset="0%" stopColor="#ef2f2f" />
-                <stop offset="48%" stopColor="#fff4f4" />
-                <stop offset="100%" stopColor="#ff4b55" />
-              </linearGradient>
-            </defs>
-
-            <g
-              className="diamond-mark"
-              opacity="0"
-              strokeLinecap="butt"
-              strokeLinejoin="miter"
-            >
-              <path
-                className="diamond-path"
-                d="M50.5 50.5h50v50s-19.2 1.3-37.2-16.7S56 35.4 35.5 15.5C18.5-1 .5.5.5.5v50h50s25.6-.6 38-18 12-32 12-32h-50v100H.5S.2 80.7 11.8 68.2 40 49.7 50.5 50.5Z"
-                stroke="url(#diamondStroke)"
-                strokeWidth="2.2"
-              />
-            </g>
-          </svg>
-          <div className="flex min-h-10 w-[min(92vw,34rem)] justify-center overflow-visible">
-            <div
-              ref={scrambleRef}
-              className="inline-block w-[12ch] whitespace-nowrap text-center text-[clamp(1.75rem,6vw,3rem)] font-black uppercase leading-none tracking-[0.16em] text-[#ef2f2f] sm:tracking-[0.2em] md:text-5xl md:tracking-[0.24em]"
-              style={{
-                fontFeatureSettings: "'tnum'",
-                fontVariationSettings: "'wght' 900",
-                WebkitTextStroke: "0.5px #ef2f2f",
-              }}
-            />
+        <div className="flex w-full items-start justify-between gap-4">
+          <div className="text-[0.62rem] font-black uppercase tracking-[0.32em] text-[#fff4f1]/55">
+            Sci-Crafts
           </div>
         </div>
 
-        <div className="flex min-w-0 items-center justify-center overflow-visible md:justify-start">
+        <div className="loader-stage-item relative z-10 flex min-h-0 flex-1 items-center justify-center py-2">
           <Loader3DText
-            onReady={() => setThreeReady(true)}
+            onReady={handleThreeReady}
             play={threeReady}
+            fast={isMobile}
           />
+        </div>
+
+        <div className="loader-stage-item mx-auto mb-9 flex w-full max-w-5xl justify-end sm:mb-7">
+          <div
+            ref={counterRef}
+            className="w-[4ch] shrink-0 text-right text-2xl font-black leading-none tracking-[0.04em] text-[#fff4f1] sm:text-4xl"
+            style={{ fontFeatureSettings: "'tnum'" }}
+          >
+            000
+          </div>
         </div>
       </div>
 
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 z-20"
+        className="pointer-events-none absolute inset-0 z-20 opacity-40"
         style={{
-          backgroundImage: "url('/noise.png')",
-          backgroundRepeat: "repeat",
-          backgroundSize: "96px 96px",
-          imageRendering: "pixelated",
-          mixBlendMode: "soft-light",
-          opacity: 0.28,
+          backgroundImage:
+            "linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px)",
+          backgroundSize: "34px 34px",
+          maskImage:
+            "linear-gradient(to bottom, transparent, black 12%, black 88%, transparent)",
         }}
       />
-
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-30 grid grid-cols-4">
+        {Array.from({ length: 4 }).map((_, index) => (
+          <div key={index} className="loader-shutter bg-[#dc2626]" />
+        ))}
+      </div>
       <span className="sr-only">Loading Sci-Fi Crafts</span>
     </div>
   );

@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import { Cursor } from "@/components/Cursor";
 import "./globals.css";
-
-const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Sci-Fi Crafts",
@@ -16,7 +13,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`h-full antialiased cursor-none ${inter.className}`}>
+    <html lang="en" className="h-full antialiased cursor-none">
       <body className="min-h-full flex flex-col cursor-none">
         <Cursor />
         {children}
