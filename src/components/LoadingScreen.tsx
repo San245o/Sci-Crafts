@@ -9,7 +9,7 @@ import {
   useState,
 } from "react";
 import { Canvas, useThree } from "@react-three/fiber";
-import { Text3D, useFont } from "@react-three/drei";
+import { Text3D, useFont, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -27,6 +27,7 @@ const loaderTiming = {
 };
 
 useFont.preload(fontPath);
+useGLTF.preload("/robot_arm.glb");
 
 type TextLine3DProps = {
   text: string;
@@ -243,7 +244,7 @@ function ThreeDTitle({ onReady, play, fast }: ThreeDTitleProps) {
   const mainGroupRef = useRef<THREE.Group>(null);
   const { viewport } = useThree();
   const textScale = fast
-    ? Math.min(2.42, viewport.width / 7.05, viewport.height / 2.9)
+    ? Math.min(2.55, viewport.width / 6.5, viewport.height / 2.8)
     : Math.min(2.8, viewport.width / 5.8, viewport.height / 2.4);
   const textScaleX = textScale * 0.96;
 
@@ -271,7 +272,7 @@ function ThreeDTitle({ onReady, play, fast }: ThreeDTitleProps) {
   return (
     <group
       ref={mainGroupRef}
-      position={[0, fast ? -0.34 : -0.64, 0]}
+      position={[0, fast ? 0.15 : -0.64, 0]}
       rotation={[0.08, -0.2, -0.05]}
       scale={[textScaleX, textScale, textScale]}
     >
@@ -320,8 +321,26 @@ export function LoadingScreen() {
   const contentRef = useRef<HTMLDivElement>(null);
   const counterRef = useRef<HTMLDivElement>(null);
   const [threeReady, setThreeReady] = useState(false);
+  const [landingReady, setLandingReady] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const handleThreeReady = useCallback(() => setThreeReady(true), []);
+
+  useEffect(() => {
+    const targetWindow = window as Window & {
+      __sciCraftsLandingReady?: boolean;
+    };
+    const updateLandingReady = () => setLandingReady(true);
+
+    if (targetWindow.__sciCraftsLandingReady) {
+      updateLandingReady();
+    }
+
+    window.addEventListener("sci-crafts-landing-ready", updateLandingReady);
+
+    return () => {
+      window.removeEventListener("sci-crafts-landing-ready", updateLandingReady);
+    };
+  }, []);
 
   useEffect(() => {
     const query = window.matchMedia("(max-width: 640px)");
@@ -338,7 +357,7 @@ export function LoadingScreen() {
   useGSAP(
     () => {
       const scope = loaderRef.current;
-      if (!scope || !threeReady) return;
+      if (!scope || !threeReady || !landingReady) return;
 
       const counterText = counterRef.current;
       const stageItems = Array.from(
@@ -456,7 +475,7 @@ export function LoadingScreen() {
           loaderTiming.loaderExitStart + 0.08,
         );
     },
-    { dependencies: [threeReady], scope: loaderRef },
+    { dependencies: [threeReady, landingReady], scope: loaderRef },
   );
 
   return (

@@ -12,8 +12,8 @@ export function Cursor() {
 
     gsap.set(cursor, { xPercent: -50, yPercent: -50, opacity: 0 });
 
-    const xTo = gsap.quickTo(cursor, "x", { duration: 0.1, ease: "power3" });
-    const yTo = gsap.quickTo(cursor, "y", { duration: 0.1, ease: "power3" });
+    const xTo = gsap.quickTo(cursor, "x", { duration: 0.4, ease: "power3" });
+    const yTo = gsap.quickTo(cursor, "y", { duration: 0.4, ease: "power3" });
 
     let isVisible = false;
     let isEnabled = false;
