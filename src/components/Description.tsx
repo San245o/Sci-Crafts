@@ -33,23 +33,23 @@ export function Description() {
         scrollTrigger: {
           trigger: scope,
           start: "top 70%",
-          end: "top 5%", // increased scroll distance
-          scrub: 1.5, // smoother/slower scrubbing
+          end: "top -20%", // increased scroll distance
+          scrub: 2.5, // smoother/slower scrubbing
         },
       });
 
-      tl.from(".line-1", { xPercent: -30, autoAlpha: 0, ease: "power2.out", duration: 0.8 }, 0.2)
-        .to(".badge-1", { scale: 1, ease: "back.out(2)", duration: 0.6 }, 0.3)
-        .from(".line-2", { xPercent: 30, autoAlpha: 0, ease: "power2.out", duration: 0.8 }, 0.4)
-        .to(".badge-2", { scale: 1, ease: "back.out(2)", duration: 0.6 }, 0.5)
-        .from(".line-3", { xPercent: -30, autoAlpha: 0, ease: "power2.out", duration: 0.8 }, 0.6)
-        .to(".badge-3", { scale: 1, ease: "back.out(2)", duration: 0.6 }, 0.7)
+      tl.from(".line-1", { xPercent: -30, autoAlpha: 0, ease: "power2.out", duration: 1.2 }, 0.2)
+        .to(".badge-1", { scale: 1, ease: "back.out(2)", duration: 0.8 }, 0.4)
+        .from(".line-2", { xPercent: 30, autoAlpha: 0, ease: "power2.out", duration: 1.2 }, 0.6)
+        .to(".badge-2", { scale: 1, ease: "back.out(2)", duration: 0.8 }, 0.8)
+        .from(".line-3", { xPercent: -30, autoAlpha: 0, ease: "power2.out", duration: 1.2 }, 1.0)
+        .to(".badge-3", { scale: 1, ease: "back.out(2)", duration: 0.8 }, 1.2)
         .from(
           ".desc-para",
-          { y: 50, scale: 0.95, autoAlpha: 0, ease: "back.out(1.5)", duration: 0.8 },
-          0.9,
+          { y: 50, scale: 0.95, autoAlpha: 0, ease: "back.out(1.5)", duration: 1.2 },
+          1.4,
         )
-        .from(".morph-container", { scale: 0.8, autoAlpha: 0, ease: "back.out(1.2)", duration: 1 }, 0.8);
+        .from(".morph-container", { scale: 0.8, autoAlpha: 0, ease: "back.out(1.2)", duration: 1.5 }, 1.2);
 
       // set 3D perspective
       gsap.set(".badge-1, .badge-2, .badge-3", { transformPerspective: 800 });
@@ -100,9 +100,9 @@ export function Description() {
         const nextText = `.step-${(i + 1) % 4}`;
 
         morphTl
-          .to("#morph-path", { morphSVG: targetPath, duration: 1.5 }, "+=2")
-          .to(currentText, { autoAlpha: 0, duration: 0.5 }, "<0.5")
-          .to(nextText, { autoAlpha: 1, duration: 0.5 }, "<");
+          .to("#morph-path", { morphSVG: targetPath, duration: 1.0 }, "+=1.6")
+          .to(currentText, { autoAlpha: 0, duration: 0.4 }, "<0.3")
+          .to(nextText, { autoAlpha: 1, duration: 0.4 }, "<");
       });
 
     },
@@ -126,10 +126,10 @@ export function Description() {
         />
       </svg>
 
-      <div className="relative z-20 flex w-full max-w-[85rem] flex-col items-center justify-between gap-8 lg:gap-12 lg:flex-row pt-16 sm:pt-0 pb-12 sm:pb-0">
+      <div className="relative z-20 flex w-full max-w-[85rem] flex-col items-center justify-between gap-8 lg:gap-12 lg:flex-row pt-32 sm:pt-16 lg:pt-0 pb-12 sm:pb-0">
         {/* Left Side: Original Typography block */}
         <div className="w-full flex-shrink shrink-0 text-left drop-shadow-xl lg:w-[58%] xl:w-[60%]">
-          <h2 className="relative mb-6 sm:mb-8 font-sans font-[800] text-[#FFB8BF] text-[clamp(2.2rem,7vw,5.5rem)] leading-[1.05] tracking-tight uppercase">
+          <h2 className="relative mb-6 sm:mb-8 font-sans font-[800] text-[#FFB8BF] text-[clamp(3rem,9.2vw,5.5rem)] leading-[1.05] tracking-tight uppercase">
             <div className="badge-1 absolute -top-4 left-4 sm:-top-8 sm:-left-4 -rotate-[6deg] scale-0 z-30 inline-block px-2 py-0.5 sm:px-3 sm:py-1 font-sans font-extrabold text-[0.55rem] sm:text-sm tracking-widest uppercase bg-[#f4ead7] text-[#ef4444] border-[1.5px] sm:border-2 border-[#991b1b] shadow-[3px_3px_0_0_#7f1d1d] sm:shadow-[4px_4px_0_0_#7f1d1d] will-change-transform">
               CRAFTSMANSHIP
             </div>
@@ -152,7 +152,7 @@ export function Description() {
               </span>
             </div>
           </h2>
-          <p className="desc-para max-w-3xl font-sans text-sm sm:text-lg md:text-xl font-[700] text-[#FFB8BF] leading-relaxed tracking-wide will-change-transform drop-shadow-md">
+          <p className="desc-para max-w-3xl font-sans text-lg sm:text-lg md:text-xl font-[700] text-[#FFB8BF] leading-relaxed tracking-wide will-change-transform drop-shadow-md">
             Choose a model, send it on WhatsApp, and place your custom 3D print
             order instantly. Whether it's a miniature, decor piece, prototype, or
             personalized gift, we turn your selected design into a finished
@@ -161,8 +161,8 @@ export function Description() {
         </div>
 
         {/* Right Side: Morphing SVG block */}
-        <div className="morph-container flex w-full lg:w-[38%] xl:w-[35%] flex-col items-center justify-center p-2 sm:p-8 will-change-transform lg:ml-auto">
-          <svg className="w-28 h-28 sm:w-48 sm:h-48 lg:w-64 lg:h-64" viewBox="0 0 64 64">
+        <div className="morph-container flex w-full lg:w-[38%] xl:w-[35%] flex-col items-center justify-center p-2 sm:p-8 mt-24 sm:mt-0 will-change-transform lg:ml-auto">
+          <svg className="h-40 w-40 sm:h-48 sm:w-48 lg:h-64 lg:w-64" viewBox="0 0 64 64">
             <defs>
               <linearGradient id="morphGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stopColor="#ef4444" />
@@ -174,17 +174,17 @@ export function Description() {
             <path id="morph-path" fill="url(#morphGrad)" d="M48,5c-4.418,0-8.418,1.791-11.313,4.687l-3.979,3.961c-0.391,0.391-1.023,0.391-1.414,0c0,0-3.971-3.97-3.979-3.961C24.418,6.791,20.418,5,16,5C7.163,5,0,12.163,0,21c0,3.338,1.024,6.436,2.773,9c0,0,0.734,1.164,1.602,2.031s24.797,24.797,24.797,24.797C29.953,57.609,30.977,58,32,58s2.047-0.391,2.828-1.172c0,0,23.93-23.93,24.797-24.797S61.227,30,61.227,30C62.976,27.436,64,24.338,64,21C64,12.163,56.837,5,48,5z M57,22c-0.553,0-1-0.447-1-1c0-4.418-3.582-8-8-8c-0.553,0-1-0.447-1-1s0.447-1,1-1c5.522,0,10,4.478,10,10C58,21.553,57.553,22,57,22z" />
           </svg>
 
-          <div className="relative mt-4 sm:mt-8 h-12 sm:h-20 w-full text-center font-sans max-w-md">
-            <div className="step-0 absolute inset-0 flex items-center justify-center text-sm sm:text-lg lg:text-2xl font-bold tracking-wider text-[#f4ead7] opacity-100 will-change-transform uppercase text-balance">
+          <div className="relative mt-5 sm:mt-8 h-16 sm:h-20 w-full max-w-md text-center font-sans">
+            <div className="step-0 absolute inset-0 flex items-center justify-center text-xl sm:text-lg lg:text-2xl font-bold tracking-wider text-[#f4ead7] opacity-100 will-change-transform uppercase text-balance">
               Select your model
             </div>
-            <div className="step-1 absolute inset-0 flex items-center justify-center text-xs sm:text-lg lg:text-xl font-bold tracking-wider text-[#f4ead7] opacity-0 will-change-transform uppercase text-balance">
+            <div className="step-1 absolute inset-0 flex items-center justify-center text-lg sm:text-lg lg:text-xl font-bold tracking-wider text-[#f4ead7] opacity-0 will-change-transform uppercase text-balance">
               Message us your favourite model for printing
             </div>
-            <div className="step-2 absolute inset-0 flex items-center justify-center text-sm sm:text-lg lg:text-2xl font-bold tracking-wider text-[#f4ead7] opacity-0 will-change-transform uppercase text-balance">
+            <div className="step-2 absolute inset-0 flex items-center justify-center text-xl sm:text-lg lg:text-2xl font-bold tracking-wider text-[#f4ead7] opacity-0 will-change-transform uppercase text-balance">
               Out for delivery
             </div>
-            <div className="step-3 absolute inset-0 flex items-center justify-center text-sm sm:text-lg lg:text-2xl font-bold tracking-wider text-[#f4ead7] opacity-0 will-change-transform uppercase text-balance">
+            <div className="step-3 absolute inset-0 flex items-center justify-center text-xl sm:text-lg lg:text-2xl font-bold tracking-wider text-[#f4ead7] opacity-0 will-change-transform uppercase text-balance">
               Enjoy!
             </div>
           </div>

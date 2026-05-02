@@ -102,7 +102,7 @@ body {
   }
 
   .compass-shell {
-    top: clamp(29rem, 72vh, 36rem);
+    top: clamp(31rem, 76vh, 39rem);
     width: min(94vw, 420px);
     opacity: 0.92;
   }

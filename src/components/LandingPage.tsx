@@ -239,7 +239,7 @@ export function LandingPage() {
         <div ref={eyebrowLayerRef}>
           <p
             ref={eyebrowTextRef}
-            className="mb-3 text-[0.64rem] font-semibold uppercase tracking-[0.46em] text-[#ef4444] opacity-0 sm:mb-4 sm:text-xs"
+            className="mb-3 text-[0.7rem] font-semibold uppercase tracking-[0.46em] text-[#ef4444] opacity-0 sm:mb-4 sm:text-xs"
           >
             Premium 3D Commerce
           </p>
@@ -247,7 +247,7 @@ export function LandingPage() {
         <div ref={headlineLayerRef}>
           <h1
             ref={headlineTextRef}
-            className="max-w-[96vw] select-none font-[family-name:var(--font-instrument-serif)] text-[clamp(2.55rem,9.8vw,4.05rem)] italic leading-[0.86] text-[#242422] opacity-0 md:text-[clamp(3.95rem,6.75vw,5.35rem)]"
+            className="max-w-[96vw] mb-6 md:mb-0 select-none font-[family-name:var(--font-instrument-serif)] text-[clamp(2.9rem,11.5vw,4.05rem)] italic leading-[0.98] md:leading-[0.86] text-[#242422] opacity-0 md:text-[clamp(3.95rem,6.75vw,5.35rem)] md:whitespace-nowrap"
           >
             transforming your dimensions
           </h1>
@@ -255,9 +255,9 @@ export function LandingPage() {
         <div ref={copyLayerRef}>
           <p
             ref={copyTextRef}
-            className="mt-5 max-w-[690px] text-sm font-medium leading-6 tracking-[0.08em] text-[#615e59] opacity-0 sm:text-base md:text-lg"
+            className="mt-5 max-w-[690px] text-base font-medium leading-6 tracking-[0.08em] text-[#615e59] opacity-0 sm:text-base md:text-lg"
           >
-            Custom fabrication, prototypes, and precision-made objects.
+            Custom fabrication, prototypes, and precision-made objects.{" "}
             <br className="hidden sm:block" />
             Designed in 3D. Crafted for the real world.
           </p>
