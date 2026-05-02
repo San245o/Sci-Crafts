@@ -263,6 +263,17 @@ function ResponsiveOrthographicCamera() {
   );
 }
 
+/**
+ * MOBILE FIX:
+ * The original wrapper used `touch-none` which blocked ALL touch events —
+ * preventing scroll, pull-to-refresh, and any page interaction on mobile.
+ *
+ * The fix uses `touch-action: pan-y` so vertical scrolling passes through
+ * natively, while horizontal gestures are captured for the robot arm.
+ * We also use `pointer-events: none` on the wrapper and only capture
+ * pointer/mouse events (which work on desktop). On mobile, we listen to
+ * global touchmove to drive the arm without blocking scroll.
+ */
 export function RobotArmCanvas({ onReady }: { onReady?: () => void }) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const aimRef = useRef({ x: 0, y: 0 });
@@ -288,30 +299,55 @@ export function RobotArmCanvas({ onReady }: { onReady?: () => void }) {
     aimRef.current.y = clamp(y, -1, 1);
   }, []);
 
+  // On mobile, listen to window-level touch events so scroll isn't blocked
+  // touchstart = respond immediately on finger down
+  // touchmove  = track finger movement
+  useEffect(() => {
+    const isMobile = window.matchMedia("(max-width: 640px)").matches || "ontouchstart" in window;
+    if (!isMobile) return;
+
+    const handleTouch = (e: TouchEvent) => {
+      const touch = e.touches[0];
+      if (touch) {
+        updateAimFromPoint(touch.clientX, touch.clientY);
+      }
+    };
+
+    window.addEventListener("touchstart", handleTouch, { passive: true });
+    window.addEventListener("touchmove", handleTouch, { passive: true });
+    return () => {
+      window.removeEventListener("touchstart", handleTouch);
+      window.removeEventListener("touchmove", handleTouch);
+    };
+  }, [updateAimFromPoint]);
+
   return (
     <div
       ref={wrapperRef}
-      className="pointer-events-auto absolute inset-0 z-[2] h-[100svh] min-h-screen w-full touch-none"
+      className="absolute inset-0 z-[2] h-[100svh] min-h-screen w-full"
+      style={{
+        // On mobile: allow vertical scrolling/pull-to-refresh to pass through.
+        // On desktop: capture pointer events for robot arm interaction.
+        touchAction: "pan-y",
+      }}
       onPointerDown={(event) => {
-        event.currentTarget.setPointerCapture(event.pointerId);
-        updateAimFromPoint(event.clientX, event.clientY);
+        // Only capture on non-touch (desktop)
+        if (event.pointerType !== "touch") {
+          event.currentTarget.setPointerCapture(event.pointerId);
+          updateAimFromPoint(event.clientX, event.clientY);
+        }
       }}
-      onPointerMove={(event) => updateAimFromPoint(event.clientX, event.clientY)}
-      onTouchStart={(event) => {
-        event.preventDefault();
-        const touch = event.touches[0];
-        if (touch) updateAimFromPoint(touch.clientX, touch.clientY);
-      }}
-      onTouchMove={(event) => {
-        event.preventDefault();
-        const touch = event.touches[0];
-        if (touch) updateAimFromPoint(touch.clientX, touch.clientY);
+      onPointerMove={(event) => {
+        if (event.pointerType !== "touch") {
+          updateAimFromPoint(event.clientX, event.clientY);
+        }
       }}
     >
       <Canvas
         orthographic
         className="h-full min-h-screen w-full"
         dpr={[1, 1.5]}
+        style={{ touchAction: "pan-y" }}
         gl={{
           alpha: true,
           antialias: true,

@@ -354,6 +354,21 @@ export function LoadingScreen() {
     };
   }, []);
 
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+
+    const enableScroll = () => {
+      document.body.style.overflow = "";
+    };
+
+    window.addEventListener("sci-crafts-loader-complete", enableScroll);
+
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("sci-crafts-loader-complete", enableScroll);
+    };
+  }, []);
+
   useGSAP(
     () => {
       const scope = loaderRef.current;
@@ -503,7 +518,7 @@ export function LoadingScreen() {
           />
         </div>
 
-        <div className="loader-stage-item mx-auto mb-9 flex w-full max-w-5xl justify-end sm:mb-7">
+        <div className="loader-stage-item mx-auto mb-16 flex w-full max-w-5xl justify-end sm:mb-14">
           <div
             ref={counterRef}
             className="w-[4ch] shrink-0 text-right text-2xl font-black leading-none tracking-[0.04em] text-[#fff4f1] sm:text-4xl"

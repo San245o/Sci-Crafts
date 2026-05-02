@@ -1,0 +1,76 @@
+<svg class="compass-svg" viewBox="0 0 1000 520" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+  <style>
+    .compass-svg { display: block; width: 100%; height: 100%; overflow: visible; }
+    .compass-draw, .compass-glint { opacity: 0; vector-effect: non-scaling-stroke; }
+    .compass-arc { fill: none; stroke: rgba(82, 78, 70, 0.3); stroke-linecap: round; stroke-width: 1.4; }
+    .compass-outer-arc { stroke: rgba(88, 84, 77, 0.5); stroke-width: 3.1; filter: drop-shadow(0 4px 6px rgba(48, 40, 34, 0.24)); }
+    .compass-red-arc { stroke: rgba(220, 38, 38, 0.42); stroke-width: 2.4; }
+    .compass-arc-inner { stroke: rgba(78, 75, 69, 0.32); stroke-width: 1.1; }
+    .compass-mobile-extension { stroke-opacity: 0; }
+    .compass-tick { stroke: rgba(255, 255, 255, 0.88); stroke-linecap: butt; stroke-width: 2; }
+    .compass-tick-mid { stroke: rgba(118, 111, 101, 0.4); stroke-width: 1.3; }
+    .compass-tick-major { stroke: rgba(255, 255, 255, 0.96); stroke-width: 3; }
+    .compass-cap { stroke: rgba(54, 51, 46, 0.36); stroke-linecap: round; stroke-width: 1.4; }
+    .compass-cap-red { stroke: rgba(220, 38, 38, 0.78); stroke-width: 2.2; }
+    .compass-glint { fill: rgba(255, 255, 255, 0.9); stroke: rgba(255, 255, 255, 0.78); stroke-linecap: round; stroke-width: 1; filter: drop-shadow(0 0 7px rgba(255, 255, 255, 0.6)); }
+    @media (max-width: 639px) {
+      .compass-tick { stroke-width: 1.5; }
+      .compass-tick-major { stroke-width: 2.15; }
+      .compass-mobile-red-arc { stroke: rgba(220, 38, 38, 0.34); stroke-opacity: 1; stroke-width: 2; }
+      .compass-mobile-inner-arc { stroke: rgba(78, 75, 69, 0.22); stroke-opacity: 1; stroke-width: 1; }
+    }
+  </style>
+  <path class="compass-draw compass-arc compass-outer-arc" d="M 72 500 A 428 428 0 0 1 928 500" />
+  <path class="compass-draw compass-arc compass-red-arc" d="M 165 500 A 335 335 0 0 1 835 500" />
+  <path class="compass-draw compass-arc compass-arc-inner" d="M 300 500 A 200 200 0 0 1 700 500" />
+  <path class="compass-draw compass-arc compass-mobile-extension compass-mobile-red-arc" d="M 132 520 A 368 368 0 0 1 868 520" />
+  <path class="compass-draw compass-arc compass-mobile-extension compass-mobile-inner-arc" d="M 245 520 A 255 255 0 0 1 755 520" />
+  <line class="compass-draw compass-tick compass-tick-major" x1="116.000" y1="500.000" x2="72.000" y2="500.000" />
+  <line class="compass-draw compass-tick" x1="94.138" y1="469.585" x2="73.197" y2="468.016" />
+  <line class="compass-draw compass-tick" x1="97.546" y1="439.340" x2="76.780" y2="436.210" />
+  <line class="compass-draw compass-tick compass-tick-mid" x1="113.929" y1="411.882" x2="82.731" y2="404.761" />
+  <line class="compass-draw compass-tick" x1="111.082" y1="380.035" x2="91.015" y2="373.845" />
+  <line class="compass-draw compass-tick" x1="121.134" y1="351.306" x2="101.586" y2="343.634" />
+  <line class="compass-draw compass-tick compass-tick-major" x1="154.028" y1="333.389" x2="114.385" y2="314.298" />
+  <line class="compass-draw compass-tick" x1="147.528" y1="296.500" x2="129.341" y2="286.000" />
+  <line class="compass-draw compass-tick" x1="163.721" y1="270.729" x2="146.370" y2="258.899" />
+  <line class="compass-draw compass-tick compass-tick-mid" x1="190.395" y1="253.098" x2="165.376" y2="233.146" />
+  <line class="compass-draw compass-tick" x1="201.648" y1="223.170" x2="186.254" y2="208.886" />
+  <line class="compass-draw compass-tick" x1="223.170" y1="201.648" x2="208.886" y2="186.254" />
+  <line class="compass-draw compass-tick compass-tick-major" x1="260.580" y1="199.777" x2="233.146" y2="165.376" />
+  <line class="compass-draw compass-tick" x1="270.729" y1="163.721" x2="258.899" y2="146.370" />
+  <line class="compass-draw compass-tick" x1="296.500" y1="147.528" x2="286.000" y2="129.341" />
+  <line class="compass-draw compass-tick compass-tick-mid" x1="328.182" y1="143.216" x2="314.298" y2="114.385" />
+  <line class="compass-draw compass-tick" x1="351.306" y1="121.134" x2="343.634" y2="101.586" />
+  <line class="compass-draw compass-tick" x1="380.035" y1="111.082" x2="373.845" y2="91.015" />
+  <line class="compass-draw compass-tick compass-tick-major" x1="414.552" y1="125.628" x2="404.761" y2="82.731" />
+  <line class="compass-draw compass-tick" x1="439.340" y1="97.546" x2="436.210" y2="76.780" />
+  <line class="compass-draw compass-tick" x1="469.585" y1="94.138" x2="468.016" y2="73.197" />
+  <line class="compass-draw compass-tick compass-tick-mid" x1="500.000" y1="104.000" x2="500.000" y2="72.000" />
+  <line class="compass-draw compass-tick" x1="530.415" y1="94.138" x2="531.984" y2="73.197" />
+  <line class="compass-draw compass-tick" x1="560.660" y1="97.546" x2="563.790" y2="76.780" />
+  <line class="compass-draw compass-tick compass-tick-major" x1="585.448" y1="125.628" x2="595.239" y2="82.731" />
+  <line class="compass-draw compass-tick" x1="619.965" y1="111.082" x2="626.155" y2="91.015" />
+  <line class="compass-draw compass-tick" x1="648.694" y1="121.134" x2="656.366" y2="101.586" />
+  <line class="compass-draw compass-tick compass-tick-mid" x1="671.818" y1="143.216" x2="685.702" y2="114.385" />
+  <line class="compass-draw compass-tick" x1="703.500" y1="147.528" x2="714.000" y2="129.341" />
+  <line class="compass-draw compass-tick" x1="729.271" y1="163.721" x2="741.101" y2="146.370" />
+  <line class="compass-draw compass-tick compass-tick-major" x1="739.420" y1="199.777" x2="766.854" y2="165.376" />
+  <line class="compass-draw compass-tick" x1="776.830" y1="201.648" x2="791.114" y2="186.254" />
+  <line class="compass-draw compass-tick" x1="798.352" y1="223.170" x2="813.746" y2="208.886" />
+  <line class="compass-draw compass-tick compass-tick-mid" x1="809.605" y1="253.098" x2="834.624" y2="233.146" />
+  <line class="compass-draw compass-tick" x1="836.279" y1="270.729" x2="853.630" y2="258.899" />
+  <line class="compass-draw compass-tick" x1="852.472" y1="296.500" x2="870.659" y2="286.000" />
+  <line class="compass-draw compass-tick compass-tick-major" x1="845.972" y1="333.389" x2="885.615" y2="314.298" />
+  <line class="compass-draw compass-tick" x1="878.866" y1="351.306" x2="898.414" y2="343.634" />
+  <line class="compass-draw compass-tick" x1="888.918" y1="380.035" x2="908.985" y2="373.845" />
+  <line class="compass-draw compass-tick compass-tick-mid" x1="886.071" y1="411.882" x2="917.269" y2="404.761" />
+  <line class="compass-draw compass-tick" x1="902.454" y1="439.340" x2="923.220" y2="436.210" />
+  <line class="compass-draw compass-tick" x1="905.862" y1="469.585" x2="926.803" y2="468.016" />
+  <line class="compass-draw compass-tick compass-tick-major" x1="884.000" y1="500.000" x2="928.000" y2="500.000" />
+  <line class="compass-draw compass-cap" x1="420" y1="486" x2="580" y2="486" />
+  <line class="compass-draw compass-cap compass-cap-red" x1="453" y1="486" x2="507" y2="486" />
+  <circle class="compass-glint" cx="360" cy="274" r="2.5" />
+  <path class="compass-glint compass-spark" d="M 296 248 h 18 M 305 239 v 18" />
+  <path class="compass-glint compass-spark" d="M 710 226 h 14 M 717 219 v 14" />
+</svg>
