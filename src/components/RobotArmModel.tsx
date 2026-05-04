@@ -7,6 +7,7 @@ import {
   useLayoutEffect,
   useMemo,
   useRef,
+  useState,
 } from "react";
 import {
   AdaptiveDpr,
@@ -20,7 +21,8 @@ import * as THREE from "three";
 const robotArmPath = "/robot_arm.glb";
 const robotFrontRotation: [number, number, number] = [0, 3.6, 0];
 
-useGLTF.preload(robotArmPath);
+// Draco-compressed GLB — pass decoder path as second argument
+useGLTF.preload(robotArmPath, "/draco/");
 
 type RobotArmGLTF = {
   scene: THREE.Group;
@@ -80,7 +82,7 @@ function materialForMesh(name: string) {
 }
 
 function usePreparedRobotScene() {
-  const { scene } = useGLTF(robotArmPath) as RobotArmGLTF;
+  const { scene } = useGLTF(robotArmPath, "/draco/") as RobotArmGLTF;
 
   return useMemo(() => {
     const clone = scene.clone(true);
@@ -277,6 +279,7 @@ function ResponsiveOrthographicCamera() {
 export function RobotArmCanvas({ onReady }: { onReady?: () => void }) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const aimRef = useRef({ x: 0, y: 0 });
+  const [mounted, setMounted] = useState(true);
 
   const updateAimFromPoint = useCallback((clientX: number, clientY: number) => {
     const rect = wrapperRef.current?.getBoundingClientRect();
@@ -321,6 +324,25 @@ export function RobotArmCanvas({ onReady }: { onReady?: () => void }) {
     };
   }, [updateAimFromPoint]);
 
+  // Unmount the Canvas once the user scrolls past the landing section
+  // to free the WebGL context and GPU resources
+  useEffect(() => {
+    const wrapper = wrapperRef.current;
+    if (!wrapper) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) {
+          setMounted(false);
+        }
+      },
+      { threshold: 0, rootMargin: "200px 0px 0px 0px" },
+    );
+
+    observer.observe(wrapper);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <div
       ref={wrapperRef}
@@ -343,31 +365,36 @@ export function RobotArmCanvas({ onReady }: { onReady?: () => void }) {
         }
       }}
     >
-      <Canvas
-        orthographic
-        className="h-full min-h-screen w-full"
-        dpr={[1, 1.5]}
-        style={{ touchAction: "pan-y" }}
-        gl={{
-          alpha: true,
-          antialias: true,
-          powerPreference: "high-performance",
-          stencil: false,
-          depth: true,
-        }}
-      >
-        <ambientLight intensity={1.25} />
-        <hemisphereLight args={["#fff8ed", "#5b4a3d", 1.15]} />
-        <directionalLight position={[4, 7, 5]} intensity={3.4} />
-        <directionalLight position={[-5, 3, 2]} intensity={1.25} color="#fff4e4" />
-        <pointLight position={[0.5, 2.3, 3.2]} intensity={2.2} color="#ef4444" />
-        <ResponsiveOrthographicCamera />
-        <Suspense fallback={null}>
-          <RobotArmRig aimRef={aimRef} onReady={onReady} />
-        </Suspense>
-        <AdaptiveDpr />
-        <Preload all />
-      </Canvas>
+      {mounted && (
+        <Canvas
+          orthographic
+          className="h-full min-h-screen w-full"
+          dpr={[1, 1.5]}
+          style={{ touchAction: "pan-y" }}
+          gl={{
+            alpha: true,
+            antialias: true,
+            powerPreference: "high-performance",
+            stencil: false,
+            depth: true,
+          }}
+        >
+          <ambientLight intensity={1.45} />
+          <directionalLight position={[4, 7, 5]} intensity={3.8} />
+          <hemisphereLight args={["#fff8ed", "#5b4a3d", 0.75]} />
+          <pointLight position={[0.5, 2.3, 3.2]} intensity={1.15} color="#ef4444" />
+
+          <ResponsiveOrthographicCamera />
+
+          <Suspense fallback={null}>
+            <RobotArmRig aimRef={aimRef} onReady={onReady} />
+          </Suspense>
+
+          <AdaptiveDpr />
+          <Preload all />
+
+        </Canvas>
+      )}
     </div>
   );
 }

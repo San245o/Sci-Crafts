@@ -11,11 +11,14 @@ export function LenisSmoothScroll({ children }: { children: React.ReactNode }) {
   const lenisRef = useRef<Lenis | null>(null);
 
   useEffect(() => {
+    // Disable Lenis on mobile — native scroll is lighter and more responsive
+    const isMobile = window.matchMedia("(max-width: 768px)").matches;
+    if (isMobile) return;
+
     const lenis = new Lenis({
       lerp: 0.1,
       smoothWheel: true,
-      syncTouch: true,        // enables smooth scrolling on touch devices too
-      syncTouchLerp: 0.06,    // gentle lerp on touch for a native-ish feel
+      syncTouch: false,
     });
 
     lenisRef.current = lenis;

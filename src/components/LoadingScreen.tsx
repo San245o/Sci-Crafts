@@ -27,7 +27,7 @@ const loaderTiming = {
 };
 
 useFont.preload(fontPath);
-useGLTF.preload("/robot_arm.glb");
+useGLTF.preload("/robot_arm.glb", "/draco/");
 
 type TextLine3DProps = {
   text: string;
@@ -123,15 +123,15 @@ function TextLine3D({
     });
 
     tl.to(
-        meshes.map((m) => m.position),
-        {
-          y: 0,
-          z: 0,
-          duration: timing.inDuration,
-          stagger: { each: timing.inStagger, from: "center" },
-        },
-        0,
-      )
+      meshes.map((m) => m.position),
+      {
+        y: 0,
+        z: 0,
+        duration: timing.inDuration,
+        stagger: { each: timing.inStagger, from: "center" },
+      },
+      0,
+    )
       .to(
         meshes.map((m) => m.rotation),
         {
@@ -211,12 +211,12 @@ function TextLine3D({
             font={fontPath}
             size={1.12}
             height={1.02}
-            curveSegments={6}
+            curveSegments={4}
             bevelEnabled
             bevelThickness={0.045}
             bevelSize={0.022}
             bevelOffset={0}
-            bevelSegments={2}
+            bevelSegments={1}
             position={position}
           >
             {letter}
@@ -323,6 +323,7 @@ export function LoadingScreen() {
   const [threeReady, setThreeReady] = useState(false);
   const [landingReady, setLandingReady] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [canvasAlive, setCanvasAlive] = useState(true);
   const handleThreeReady = useCallback(() => setThreeReady(true), []);
 
   useEffect(() => {
@@ -484,6 +485,7 @@ export function LoadingScreen() {
             duration: 0.7,
             ease: "power4.inOut",
             onComplete: () => {
+              setCanvasAlive(false);
               window.dispatchEvent(new Event("sci-crafts-loader-complete"));
             },
           },
@@ -511,11 +513,13 @@ export function LoadingScreen() {
         </div>
 
         <div className="loader-stage-item relative z-10 flex min-h-0 flex-1 items-center justify-center py-2">
-          <Loader3DText
-            onReady={handleThreeReady}
-            play={threeReady}
-            fast={isMobile}
-          />
+          {canvasAlive && (
+            <Loader3DText
+              onReady={handleThreeReady}
+              play={threeReady}
+              fast={isMobile}
+            />
+          )}
         </div>
 
         <div className="loader-stage-item mx-auto mb-16 flex w-full max-w-5xl justify-end sm:mb-14">

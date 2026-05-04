@@ -144,6 +144,9 @@ export function LandingPage() {
       }
 
       gsap.set([eyebrowText, headlineText, copyText], { autoAlpha: 0 });
+      gsap.set([eyebrowLayer, headlineLayer, copyLayer], {
+        transformOrigin: "50% 50%",
+      });
       setTextReady(false);
 
       if (!play) return;
@@ -156,13 +159,14 @@ export function LandingPage() {
         gsap.set([eyebrowText, headlineText, copyText], {
           autoAlpha: 1,
           y: 0,
+          scale: 1,
         });
         setTextReady(true);
         return;
       }
 
       const split = SplitText.create(headlineText, {
-        type: "chars",
+        type: "words",
         smartWrap: true,
       });
 
@@ -171,27 +175,34 @@ export function LandingPage() {
       intro
         .fromTo(
           eyebrowText,
-          { autoAlpha: 0, y: 24 },
-          { autoAlpha: 1, y: 0, duration: 0.56 },
+          { autoAlpha: 0, y: 24, scale: 1.08 },
+          { autoAlpha: 1, y: 0, scale: 1, duration: 0.58, ease: "back.out(1.35)" },
           0,
         )
         .set(headlineText, { autoAlpha: 1 }, 0.04)
+        .fromTo(
+          headlineLayer,
+          { scale: 1.12, y: 20, autoAlpha: 0 },
+          { scale: 1, y: 0, autoAlpha: 1, duration: 0.72, ease: "back.out(1.32)" },
+          0.03,
+        )
         .from(
-          split.chars,
+          split.words,
           {
-            y: 50,
+            yPercent: 28,
+            scale: 1.03,
             opacity: 0,
-            stagger: 0.03,
-            duration: 0.6,
-            ease: "back.out(1.7)",
+            stagger: 0.04,
+            duration: 0.62,
+            ease: "power3.out",
           },
-          0.04,
+          0.08,
         )
         .fromTo(
           copyText,
-          { autoAlpha: 0, y: 24 },
-          { autoAlpha: 1, y: 0, duration: 0.56 },
-          0.16,
+          { autoAlpha: 0, y: 24, scale: 1.06 },
+          { autoAlpha: 1, y: 0, scale: 1, duration: 0.58, ease: "back.out(1.28)" },
+          0.2,
         );
 
       intro.eventCallback("onComplete", () => setTextReady(true));
@@ -204,7 +215,7 @@ export function LandingPage() {
           end: "+=150%",
           pin: true,
           pinSpacing: false,
-          scrub: 0.6,
+          scrub: 0.35,
           invalidateOnRefresh: true,
         },
       });
@@ -214,7 +225,7 @@ export function LandingPage() {
       scrollTl
         .to(
           [copyLayer, headlineLayer, eyebrowLayer],
-          { y: -240, autoAlpha: 0, ease: "power2.inOut", duration: 0.15, stagger: 0.02 },
+          { y: -220, scale: 0.9, autoAlpha: 0, ease: "power2.out", duration: 0.2, stagger: 0.02 },
           0,
         );
 
