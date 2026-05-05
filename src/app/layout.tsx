@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Instrument_Serif } from "next/font/google";
 import { Cursor } from "@/components/Cursor";
+import { Navigation } from "@/components/Navigation";
 import "./globals.css";
 
 const instrumentSerif = Instrument_Serif({ 
@@ -24,6 +25,7 @@ export default function RootLayout({
     <html lang="en" className={`h-full antialiased ${instrumentSerif.variable}`}>
       <body className="min-h-full flex flex-col">
         <Cursor />
+        <Navigation />
         {children}
       </body>
     </html>

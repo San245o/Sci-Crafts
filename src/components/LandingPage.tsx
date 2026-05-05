@@ -29,12 +29,18 @@ function CompassGauge({ play }: { play: boolean }) {
       gsap.set(".compass-draw", { autoAlpha: 1, drawSVG: "0% 0%" });
       gsap.set(".compass-glint", { autoAlpha: 0, scale: 0.82, transformOrigin: "50% 50%" });
 
+      // OPTIMIZATION: Ticks are too numerous for DrawSVG to render smoothly.
+      // We set their paths to fully drawn but hide/shrink them, then animate
+      // transform and opacity which uses GPU hardware acceleration instead of CPU layout!
+      gsap.set(".compass-tick", { drawSVG: "0% 100%", autoAlpha: 0, scale: 0.1, transformOrigin: "50% 50%" });
+
       if (!play) return;
 
       const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
       if (reduceMotion) {
         gsap.set(".compass-draw", { autoAlpha: 1, drawSVG: "0% 100%" });
+        gsap.set(".compass-tick", { autoAlpha: 1, scale: 1 });
         gsap.set(".compass-glint", { autoAlpha: 0.65, scale: 1 });
         return;
       }
@@ -50,7 +56,8 @@ function CompassGauge({ play }: { play: boolean }) {
         .to(
           ".compass-tick",
           {
-            drawSVG: "0% 100%",
+            scale: 1,
+            autoAlpha: 1,
             duration: 0.48,
             stagger: { each: 0.012, from: "center" },
           },
@@ -76,6 +83,9 @@ function CompassGauge({ play }: { play: boolean }) {
           },
           "-=0.35",
         );
+
+      // Pre-calculate timeline math
+      timeline.progress(1).progress(0);
     },
     { dependencies: [play, svgContent], scope: compassRef, revertOnUpdate: true },
   );
@@ -220,14 +230,7 @@ export function LandingPage() {
         },
       });
 
-      // Text layers float up and fade as user scrolls
-      // We animate them bottom-up so lower layers disappear before the curve hits them
-      scrollTl
-        .to(
-          [copyLayer, headlineLayer, eyebrowLayer],
-          { y: -220, scale: 0.9, autoAlpha: 0, ease: "power2.out", duration: 0.2, stagger: 0.02 },
-          0,
-        );
+
 
       ScrollTrigger.refresh();
 

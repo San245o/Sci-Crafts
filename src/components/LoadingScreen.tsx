@@ -211,7 +211,7 @@ function TextLine3D({
             font={fontPath}
             size={1.12}
             height={1.02}
-            curveSegments={4}
+            curveSegments={5}
             bevelEnabled
             bevelThickness={0.045}
             bevelSize={0.022}
@@ -516,7 +516,7 @@ export function LoadingScreen() {
           {canvasAlive && (
             <Loader3DText
               onReady={handleThreeReady}
-              play={threeReady}
+              play={threeReady && landingReady}
               fast={isMobile}
             />
           )}

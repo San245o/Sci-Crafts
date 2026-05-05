@@ -334,6 +334,8 @@ export function RobotArmCanvas({ onReady }: { onReady?: () => void }) {
       ([entry]) => {
         if (!entry.isIntersecting) {
           setMounted(false);
+        } else {
+          setMounted(true);
         }
       },
       { threshold: 0, rootMargin: "200px 0px 0px 0px" },

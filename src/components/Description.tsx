@@ -22,11 +22,7 @@ type DescriptionProps = {
   className?: string;
 };
 
-/**
- * DescriptionContent — the actual rendered content.
- * Separated so the parent can lazy-mount / unmount this component.
- */
-function DescriptionContent({ className = "" }: DescriptionProps) {
+export function Description({ className = "" }: DescriptionProps) {
   const containerRef = useRef<HTMLElement>(null);
 
   useGSAP(
@@ -108,44 +104,33 @@ function DescriptionContent({ className = "" }: DescriptionProps) {
         paused: true,
       });
       const badgeTweens = [badge1Tween, badge2Tween, badge3Tween];
-      let morphTl: gsap.core.Timeline | null = null;
+      // 1. Build timeline unconditionally so it happens on mount (behind loader)
+      const morphTl = gsap.timeline({
+        repeat: -1,
+        paused: true,
+        defaults: { ease: "power2.inOut" },
+      });
 
-      const ensureMorphTimeline = () => {
-        if (morphTl) return morphTl;
+      MORPH_PATHS.forEach((targetPath, i) => {
+        const currentText = `.step-${i}`;
+        const nextText = `.step-${(i + 1) % 4}`;
 
-        morphTl = gsap.timeline({
-          repeat: -1,
-          paused: true,
-          defaults: { ease: "power2.inOut" },
-        });
+        morphTl.to("#morph-path", { morphSVG: targetPath, duration: 1.0 }, "+=1.6")
+          .to(currentText, { autoAlpha: 0, duration: 0.4 }, "<0.3")
+          .to(nextText, { autoAlpha: 1, duration: 0.4 }, "<");
+      });
 
-        const tl = morphTl;
-        if (!tl) return morphTl;
-
-        MORPH_PATHS.forEach((targetPath, i) => {
-          const currentText = `.step-${i}`;
-          const nextText = `.step-${(i + 1) % 4}`;
-
-          tl.to("#morph-path", { morphSVG: targetPath, duration: 1.0 }, "+=1.6")
-            .to(currentText, { autoAlpha: 0, duration: 0.4 }, "<0.3")
-            .to(nextText, { autoAlpha: 1, duration: 0.4 }, "<");
-        });
-
-        return morphTl;
-      };
-
-      if (prefersReducedMotion) {
-        gsap.set("#morph-path", { attr: { d: HEART_PATH } });
-        return;
-      }
+      // 2. FORCE GSAP to pre-calculate all morph bezier curve math immediately!
+      // This is the #1 fix for MorphSVG scroll jank.
+      morphTl.progress(1).progress(0);
 
       const playAmbient = () => {
-        ensureMorphTimeline().play();
+        morphTl.play();
         badgeTweens.forEach((tween) => tween.play());
       };
 
       const pauseAmbient = () => {
-        morphTl?.pause();
+        morphTl.pause();
         badgeTweens.forEach((tween) => tween.pause());
       };
 
@@ -252,39 +237,3 @@ function DescriptionContent({ className = "" }: DescriptionProps) {
   );
 }
 
-/**
- * Description — lazy-mounts DescriptionContent when the placeholder enters
- * the viewport (with generous rootMargin) and unmounts it when it scrolls
- * fully past, freeing SVG morph / badge animation CPU.
- */
-export function Description({ className = "" }: DescriptionProps) {
-  const sentinelRef = useRef<HTMLDivElement>(null);
-  const [shouldRender, setShouldRender] = useState(false);
-
-  useEffect(() => {
-    const sentinel = sentinelRef.current;
-    if (!sentinel) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setShouldRender(true);
-        }
-      },
-      {
-        // Start loading when the section is within 600px of the viewport
-        rootMargin: "600px 0px 600px 0px",
-        threshold: 0,
-      },
-    );
-
-    observer.observe(sentinel);
-    return () => observer.disconnect();
-  }, []);
-
-  return (
-    <div ref={sentinelRef} style={{ minHeight: shouldRender ? undefined : "100vh" }}>
-      {shouldRender && <DescriptionContent className={className} />}
-    </div>
-  );
-}
