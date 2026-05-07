@@ -26,20 +26,24 @@ function CompassGauge({ play }: { play: boolean }) {
     () => {
       if (!svgContent) return;
 
-      gsap.set(".compass-draw", { autoAlpha: 1, drawSVG: "0% 0%" });
+      // Keep DrawSVG work limited to arcs/caps only.
+      gsap.set(".compass-arc, .compass-cap", { autoAlpha: 1, drawSVG: "0% 0%" });
       gsap.set(".compass-glint", { autoAlpha: 0, scale: 0.82, transformOrigin: "50% 50%" });
 
-      // OPTIMIZATION: Ticks are too numerous for DrawSVG to render smoothly.
-      // We set their paths to fully drawn but hide/shrink them, then animate
-      // transform and opacity which uses GPU hardware acceleration instead of CPU layout!
-      gsap.set(".compass-tick", { drawSVG: "0% 100%", autoAlpha: 0, scale: 0.1, transformOrigin: "50% 50%" });
+      // Ticks are many; avoid DrawSVG math and reveal them with a batched transform/opacity tween.
+      gsap.set(".compass-tick", {
+        autoAlpha: 0,
+        scale: 0.86,
+        transformOrigin: "50% 50%",
+        force3D: true,
+      });
 
       if (!play) return;
 
       const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
       if (reduceMotion) {
-        gsap.set(".compass-draw", { autoAlpha: 1, drawSVG: "0% 100%" });
+        gsap.set(".compass-arc, .compass-cap", { autoAlpha: 1, drawSVG: "0% 100%" });
         gsap.set(".compass-tick", { autoAlpha: 1, scale: 1 });
         gsap.set(".compass-glint", { autoAlpha: 0.65, scale: 1 });
         return;
@@ -58,10 +62,10 @@ function CompassGauge({ play }: { play: boolean }) {
           {
             scale: 1,
             autoAlpha: 1,
-            duration: 0.48,
-            stagger: { each: 0.012, from: "center" },
+            duration: 0.3,
+            ease: "power1.out",
           },
-          "-=0.58",
+          "-=0.46",
         )
         .to(
           ".compass-red-arc",

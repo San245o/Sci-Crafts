@@ -2,6 +2,7 @@
 
 import React, { useRef } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { DrawSVGPlugin } from "gsap/DrawSVGPlugin";
@@ -33,6 +34,7 @@ function ProductItem({ src, alt, price, category, colClass = "" }: { src: string
 }
 
 function MarketplaceButton() {
+  const router = useRouter();
   const buttonRef = useRef<HTMLButtonElement>(null);
   const idleTextRef = useRef<HTMLDivElement>(null);
   const hoverTextRef = useRef<HTMLDivElement>(null);
@@ -157,6 +159,7 @@ function MarketplaceButton() {
   return (
     <button
       ref={buttonRef}
+      onClick={() => router.push("/marketplace")}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       className="hide-cursor cursor-none mt-20 relative flex items-center justify-center bg-transparent text-[#000000] font-['Inter',sans-serif] font-bold text-lg md:text-xl tracking-widest uppercase rounded-[16px] overflow-hidden w-[300px] h-[72px]"

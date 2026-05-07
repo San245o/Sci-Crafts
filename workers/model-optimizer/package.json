@@ -1,0 +1,17 @@
+{
+  "name": "sci-crafts-model-optimizer",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@gltf-transform/cli": "^4.2.1",
+    "@supabase/supabase-js": "^2.105.3",
+    "sharp": "^0.34.5"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}
