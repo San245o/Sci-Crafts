@@ -1,0 +1,40 @@
+name: Optimize 3D Models
+
+on:
+  schedule:
+    - cron: "0 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: model-optimizer
+  cancel-in-progress: false
+
+jobs:
+  optimize-models:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    defaults:
+      run:
+        working-directory: workers/model-optimizer
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      MAX_JOBS: 3
+      MAX_ATTEMPTS: 3
+      JOB_STALE_MINUTES: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: workers/model-optimizer/package-lock.json
+
+      - name: Install optimizer dependencies
+        run: npm ci
+
+      - name: Optimize pending models
+        run: npm start

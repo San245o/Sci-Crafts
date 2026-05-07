@@ -1,41 +1,43 @@
-# Sci-Crafts Model Optimizer Worker
+# Sci-Crafts Model Optimizer
 
-This worker is intended to run as a Render Background Worker. It polls Supabase for products with `optimization_status` of `pending` or retryable `failed`, downloads the raw GLB from `product-models-raw`, optimizes it with glTF Transform, uploads the final GLB to `product-models`, updates the product row, and deletes the raw file.
+This is a one-shot optimizer for GitHub Actions. It processes up to `MAX_JOBS` pending GLB optimization jobs, then exits.
 
-## Render settings
+The workflow lives at `.github/workflows/model-optimizer.yml` and runs:
 
-Create a new Render Background Worker connected to this repo.
+- Hourly via cron.
+- Manually from the GitHub Actions tab.
 
-Use these settings:
+## Required GitHub Secrets
 
-- Root Directory: `workers/model-optimizer`
-- Runtime: Node
-- Build Command: `npm install`
-- Start Command: `npm start`
-- Node Version: `22` or newer
+Add these in GitHub:
 
-## Environment variables
-
-Set these in Render's Environment panel:
+`Repository > Settings > Secrets and variables > Actions > New repository secret`
 
 ```env
 SUPABASE_URL=https://your-project-ref.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
-POLL_INTERVAL_MS=10000
+```
+
+Get them from Supabase:
+
+- `SUPABASE_URL`: Supabase Dashboard > Project Settings > API > Project URL.
+- `SUPABASE_SERVICE_ROLE_KEY`: Supabase Dashboard > Project Settings > API > service_role key.
+
+Do not expose the service role key in frontend code or any `NEXT_PUBLIC_` variable.
+
+## Runtime Settings
+
+The workflow sets:
+
+```env
+MAX_JOBS=3
 MAX_ATTEMPTS=3
 JOB_STALE_MINUTES=15
 ```
 
-Get values from Supabase Dashboard:
+## Local Test
 
-- `SUPABASE_URL`: Project Settings > API > Project URL.
-- `SUPABASE_SERVICE_ROLE_KEY`: Project Settings > API > service_role key.
-
-Do not expose the service role key in frontend code or any `NEXT_PUBLIC_` variable.
-
-## Local test
-
-From this directory:
+From the repo root:
 
 ```bash
 cd workers/model-optimizer
@@ -43,14 +45,12 @@ npm install
 set -a
 . ../../.env.local
 set +a
-npm start
+MAX_JOBS=3 npm start
 ```
-
-Stop with `Ctrl+C` after it processes pending jobs.
 
 ## Pipeline
 
-The command run by the worker is:
+The optimizer runs:
 
 ```bash
 gltf-transform optimize input.glb output.glb --compress draco --texture-compress webp

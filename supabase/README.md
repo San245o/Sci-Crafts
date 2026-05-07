@@ -25,4 +25,4 @@ Seller profiles:
 Async model optimization:
 - `supabase/model_optimization_schema.sql` adds raw model storage, product optimization status fields, and the worker claim RPC.
 - New uploads go to `product-models-raw` and products start as `optimization_status = 'pending'`.
-- The Render worker uploads optimized output to `product-models`, updates `model_path`, and deletes the raw file.
+- The GitHub Actions optimizer uploads optimized output to `product-models`, updates `model_path`, and deletes the raw file.

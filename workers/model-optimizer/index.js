@@ -7,7 +7,7 @@ import os from "node:os";
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const pollIntervalMs = Number(process.env.POLL_INTERVAL_MS || 10_000);
+const maxJobs = Number(process.env.MAX_JOBS || 3);
 const maxAttempts = Number(process.env.MAX_ATTEMPTS || 3);
 const staleMinutes = Number(process.env.JOB_STALE_MINUTES || 15);
 const workerDir = path.dirname(fileURLToPath(import.meta.url));
@@ -17,13 +17,13 @@ if (!supabaseUrl || !serviceRoleKey) {
   throw new Error("Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY");
 }
 
+if (!Number.isFinite(maxJobs) || maxJobs < 1) {
+  throw new Error("MAX_JOBS must be a positive number");
+}
+
 const supabase = createClient(supabaseUrl, serviceRoleKey, {
   auth: { persistSession: false, autoRefreshToken: false },
 });
-
-function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
 
 function run(command, args) {
   return new Promise((resolve, reject) => {
@@ -145,29 +145,32 @@ async function processJob(product) {
   }
 }
 
-async function loop() {
-  console.log("Sci-Crafts model optimizer worker started");
+async function runBatch() {
+  console.log(`Sci-Crafts model optimizer started. MAX_JOBS=${maxJobs}`);
+  let processed = 0;
 
-  while (true) {
-    try {
-      const job = await claimJob();
+  while (processed < maxJobs) {
+    const job = await claimJob();
 
-      if (!job) {
-        await sleep(pollIntervalMs);
-        continue;
-      }
-
-      try {
-        await processJob(job);
-      } catch (error) {
-        console.error(`Failed product ${job.id}`, error);
-        await markFailed(job, error);
-      }
-    } catch (error) {
-      console.error("Worker loop error", error);
-      await sleep(pollIntervalMs);
+    if (!job) {
+      console.log("No pending optimization jobs.");
+      break;
     }
+
+    try {
+      await processJob(job);
+    } catch (error) {
+      console.error(`Failed product ${job.id}`, error);
+      await markFailed(job, error);
+    }
+
+    processed += 1;
   }
+
+  console.log(`Optimizer finished. Jobs attempted: ${processed}`);
 }
 
-loop();
+runBatch().catch((error) => {
+  console.error("Optimizer crashed", error);
+  process.exit(1);
+});
