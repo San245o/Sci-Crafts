@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Instrument_Serif } from "next/font/google";
+import { Instrument_Serif, Inter } from "next/font/google";
 import { Cursor } from "@/components/Cursor";
 import { Navigation } from "@/components/Navigation";
 import "./globals.css";
@@ -9,6 +9,11 @@ const instrumentSerif = Instrument_Serif({
   subsets: ["latin"],
   style: ["italic", "normal"],
   variable: "--font-instrument-serif",
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
 });
 
 export const metadata: Metadata = {
@@ -22,8 +27,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`h-full antialiased ${instrumentSerif.variable}`}>
-      <body className="min-h-full flex flex-col">
+    <html lang="en" className={`h-full antialiased ${instrumentSerif.variable} ${inter.variable}`}>
+      <body className="min-h-full flex flex-col font-[family-name:var(--font-inter)]">
         <Cursor />
         <Navigation />
         {children}
