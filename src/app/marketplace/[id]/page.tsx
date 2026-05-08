@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { formatInr } from "@/lib/marketplace/format";
-import { isModelReady, optimizationLabel } from "@/lib/marketplace/optimization";
+import { isModelReady } from "@/lib/marketplace/optimization";
 import { displayNameForOwner, getProfilesById } from "@/lib/marketplace/sellers";
 import { createSignedUrl, createSignedUrls } from "@/lib/marketplace/storage";
 import type { Product } from "@/lib/marketplace/types";
@@ -29,8 +29,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
   const imageUrls = await createSignedUrls(supabase, "product-images", product.image_paths || []);
   const ready = isModelReady(product);
-  const modelUrl = ready ? await createSignedUrl(supabase, "product-models", product.model_path, false) : null;
-  const downloadUrl = ready ? await createSignedUrl(supabase, "product-models", product.model_path, true) : null;
+  const modelPath = ready ? product.model_path : product.raw_model_path;
+  const modelBucket = ready ? "product-models" : "product-models-raw";
+  const modelUrl = await createSignedUrl(supabase, modelBucket, modelPath, false);
+  const downloadUrl = await createSignedUrl(supabase, modelBucket, modelPath, true);
   const profiles = await getProfilesById(supabase, [product.owner_id]);
   const sellerName = displayNameForOwner(profiles, product.owner_id);
 
@@ -43,10 +45,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
           <p className="text-sm uppercase tracking-wide text-neutral-700">{product.category}</p>
           <h1 className="text-3xl font-semibold">{product.title}</h1>
           <p className="text-sm text-neutral-700">Listed by {sellerName}</p>
-          <p className="text-sm text-neutral-700">Model status: {optimizationLabel(product.optimization_status)}</p>
-          {product.optimization_status === "failed" && product.optimization_error ? (
-            <p className="text-sm text-neutral-700">Error: {product.optimization_error}</p>
-          ) : null}
           <p>{formatInr(product.price_cents)}</p>
           <p className="max-w-2xl whitespace-pre-wrap text-neutral-800">{product.description}</p>
           <div className="flex flex-wrap gap-3">
@@ -64,11 +62,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
           {modelUrl ? (
             <ModelViewer url={modelUrl} />
           ) : (
-            <p className="border border-black p-6 text-sm">
-              {product.optimization_status === "failed"
-                ? "The model could not be optimized. Upload a new GLB from your profile flow when retry support is added."
-                : "Model is being optimized. Preview and download will be available soon."}
-            </p>
+            <p className="border border-black p-6 text-sm">No GLB model uploaded yet.</p>
           )}
         </section>
 

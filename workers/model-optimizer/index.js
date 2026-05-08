@@ -25,6 +25,23 @@ const supabase = createClient(supabaseUrl, serviceRoleKey, {
   auth: { persistSession: false, autoRefreshToken: false },
 });
 
+function decodeJwtPayload(token) {
+  try {
+    const payload = token.split(".")[1];
+    const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
+    return JSON.parse(Buffer.from(normalized, "base64").toString("utf8"));
+  } catch {
+    return null;
+  }
+}
+
+function assertServiceRoleKey() {
+  const payload = decodeJwtPayload(serviceRoleKey);
+  if (payload?.role !== "service_role") {
+    throw new Error("SUPABASE_SERVICE_ROLE_KEY must be the Supabase service_role secret key, not the anon key.");
+  }
+}
+
 function run(command, args) {
   return new Promise((resolve, reject) => {
     const child = spawn(command, args, { stdio: "inherit" });
@@ -146,6 +163,7 @@ async function processJob(product) {
 }
 
 async function runBatch() {
+  assertServiceRoleKey();
   console.log(`Sci-Crafts model optimizer started. MAX_JOBS=${maxJobs}`);
   let processed = 0;
 

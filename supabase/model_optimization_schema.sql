@@ -105,3 +105,18 @@ $$;
 
 revoke all on function public.claim_model_optimization_job(integer, timestamptz) from public, anon, authenticated;
 grant execute on function public.claim_model_optimization_job(integer, timestamptz) to service_role;
+
+-- Allow public product pages to create signed URLs for raw models while optimization is pending.
+drop policy if exists "Published raw product models can be signed" on storage.objects;
+create policy "Published raw product models can be signed"
+on storage.objects for select
+to anon, authenticated
+using (
+  bucket_id = 'product-models-raw'
+  and exists (
+    select 1
+    from public.products p
+    where p.is_published = true
+      and p.raw_model_path = name
+  )
+);

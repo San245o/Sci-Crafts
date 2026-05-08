@@ -114,7 +114,7 @@ export async function POST(request: Request) {
     price_cents: Math.round(price * 100),
     image_paths: imagePaths,
     raw_model_path: rawModelPath,
-    model_path: null,
+    model_path: rawModelPath,
     optimized_model_path: null,
     original_size_bytes: model.size,
     model_size_bytes: model.size,
