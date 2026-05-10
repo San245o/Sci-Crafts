@@ -1,12 +1,15 @@
 import { NextResponse } from "next/server";
 import type { User } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
+import { isSellerProfileComplete, type SellerProfile } from "@/lib/marketplace/seller-profile";
 
 export const runtime = "nodejs";
 
 const MAX_MODEL_BYTES = 15 * 1024 * 1024;
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 const IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]);
+const MODEL_TYPES = new Set(["model/gltf-binary", "application/octet-stream"]);
+const ZIP_TYPES = new Set(["application/zip", "application/x-zip-compressed", "application/octet-stream"]);
 
 function stringValue(formData: FormData, key: string) {
   const value = formData.get(key);
@@ -36,6 +39,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Sign in before uploading a model." }, { status: 401 });
   }
 
+  const { data: sellerProfile } = await supabase
+    .from("seller_profiles")
+    .select("city, pincode, location, printers")
+    .eq("id", userData.user.id)
+    .maybeSingle<SellerProfile>();
+
+  if (!isSellerProfileComplete(sellerProfile)) {
+    return NextResponse.json({ error: "Complete seller verification before uploading a model." }, { status: 403 });
+  }
+
   const formData = await request.formData();
   const title = stringValue(formData, "title");
   const description = stringValue(formData, "description");
@@ -49,11 +62,22 @@ export async function POST(request: Request) {
   }
 
   if (!(model instanceof File) || model.size === 0) {
-    return NextResponse.json({ error: "A .glb model file is required." }, { status: 400 });
+    return NextResponse.json({ error: "A .glb model or .zip CAD/STL package is required." }, { status: 400 });
   }
 
-  if (!model.name.toLowerCase().endsWith(".glb")) {
-    return NextResponse.json({ error: "Only .glb model uploads are supported for the MVP." }, { status: 400 });
+  const modelName = model.name.toLowerCase();
+  const modelFileType = modelName.endsWith(".glb") ? "glb" : modelName.endsWith(".zip") ? "zip" : null;
+
+  if (!modelFileType) {
+    return NextResponse.json({ error: "Upload a .glb model or a .zip package containing CAD/STL files." }, { status: 400 });
+  }
+
+  if (modelFileType === "glb" && model.type && !MODEL_TYPES.has(model.type)) {
+    return NextResponse.json({ error: "GLB uploads must use a GLB-compatible file type." }, { status: 400 });
+  }
+
+  if (modelFileType === "zip" && model.type && !ZIP_TYPES.has(model.type)) {
+    return NextResponse.json({ error: "CAD/STL packages must be uploaded as a .zip file." }, { status: 400 });
   }
 
   if (model.size > MAX_MODEL_BYTES) {
@@ -72,7 +96,7 @@ export async function POST(request: Request) {
   const productId = crypto.randomUUID();
   const userId = userData.user.id;
   const basePath = `${userId}/${productId}`;
-  const rawModelPath = `${basePath}/original-${safeName(model.name)}`;
+  const modelStoragePath = `${basePath}/original-${safeName(model.name)}`;
   const avatarUrl = typeof userData.user.user_metadata?.avatar_url === "string" ? userData.user.user_metadata.avatar_url : null;
 
   await supabase.from("profiles").upsert({
@@ -81,8 +105,9 @@ export async function POST(request: Request) {
     avatar_url: avatarUrl,
   });
 
-  const modelUpload = await supabase.storage.from("product-models-raw").upload(rawModelPath, model, {
-    contentType: model.type || "model/gltf-binary",
+  const modelBucket = modelFileType === "glb" ? "product-models-raw" : "product-models";
+  const modelUpload = await supabase.storage.from(modelBucket).upload(modelStoragePath, model, {
+    contentType: model.type || (modelFileType === "glb" ? "model/gltf-binary" : "application/zip"),
     upsert: false,
   });
 
@@ -113,12 +138,14 @@ export async function POST(request: Request) {
     category,
     price_cents: Math.round(price * 100),
     image_paths: imagePaths,
-    raw_model_path: rawModelPath,
-    model_path: rawModelPath,
-    optimized_model_path: null,
+    model_file_type: modelFileType,
+    model_file_name: model.name,
+    raw_model_path: modelFileType === "glb" ? modelStoragePath : null,
+    model_path: modelStoragePath,
+    optimized_model_path: modelFileType === "zip" ? modelStoragePath : null,
     original_size_bytes: model.size,
     model_size_bytes: model.size,
-    optimization_status: "pending",
+    optimization_status: modelFileType === "glb" ? "pending" : "complete",
     optimization_error: null,
     optimization_attempts: 0,
     is_published: true,

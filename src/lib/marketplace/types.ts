@@ -8,6 +8,8 @@ export type Product = {
   image_paths: string[];
   model_path: string | null;
   model_size_bytes: number | null;
+  model_file_type: "glb" | "zip";
+  model_file_name: string | null;
   raw_model_path: string | null;
   optimized_model_path: string | null;
   original_size_bytes: number | null;

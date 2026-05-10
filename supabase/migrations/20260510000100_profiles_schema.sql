@@ -1,5 +1,5 @@
--- Adds public seller profiles for marketplace display.
--- This does not expose auth.users. Only display metadata is public.
+-- Adds public marketplace profiles plus private seller verification profiles.
+-- Public profiles expose display metadata only; seller serial/location/pricing data is owner-readable.
 
 create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,

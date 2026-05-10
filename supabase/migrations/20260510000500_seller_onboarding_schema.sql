@@ -1,15 +1,5 @@
--- Adds public seller profiles for marketplace display.
--- This does not expose auth.users. Only display metadata is public.
-
-create table if not exists public.profiles (
-  id uuid primary key references auth.users(id) on delete cascade,
-  display_name text not null check (char_length(display_name) between 1 and 120),
-  avatar_url text,
-  account_type text not null default 'buyer',
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now(),
-  constraint profiles_account_type_check check (account_type in ('buyer', 'seller'))
-);
+-- Adds buyer/seller roles, private seller printer details, and seller-only product inserts
+-- for projects that already had the earlier marketplace schema applied manually.
 
 alter table public.profiles
 add column if not exists account_type text;
@@ -50,11 +40,6 @@ begin
 end;
 $$;
 
-drop trigger if exists profiles_set_updated_at on public.profiles;
-create trigger profiles_set_updated_at
-before update on public.profiles
-for each row execute function public.set_updated_at();
-
 drop trigger if exists seller_profiles_set_updated_at on public.seller_profiles;
 create trigger seller_profiles_set_updated_at
 before update on public.seller_profiles
@@ -62,25 +47,6 @@ for each row execute function public.set_updated_at();
 
 alter table public.profiles enable row level security;
 alter table public.seller_profiles enable row level security;
-
-drop policy if exists "Profiles are publicly visible" on public.profiles;
-create policy "Profiles are publicly visible"
-on public.profiles for select
-to anon, authenticated
-using (true);
-
-drop policy if exists "Users create own profile" on public.profiles;
-create policy "Users create own profile"
-on public.profiles for insert
-to authenticated
-with check (id = auth.uid());
-
-drop policy if exists "Users update own profile" on public.profiles;
-create policy "Users update own profile"
-on public.profiles for update
-to authenticated
-using (id = auth.uid())
-with check (id = auth.uid());
 
 drop policy if exists "Users read own seller profile" on public.seller_profiles;
 create policy "Users read own seller profile"
@@ -107,6 +73,19 @@ on public.seller_profiles for delete
 to authenticated
 using (id = auth.uid());
 
-grant select on public.profiles to anon, authenticated;
-grant insert, update on public.profiles to authenticated;
 grant select, insert, update, delete on public.seller_profiles to authenticated;
+
+drop policy if exists "Authenticated users create products" on public.products;
+create policy "Authenticated users create products"
+on public.products for insert
+to authenticated
+with check (
+  owner_id = auth.uid()
+  and exists (
+    select 1
+    from public.profiles profile
+    join public.seller_profiles seller_profile on seller_profile.id = profile.id
+    where profile.id = auth.uid()
+      and profile.account_type = 'seller'
+  )
+);

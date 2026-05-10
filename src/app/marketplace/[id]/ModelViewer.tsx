@@ -11,10 +11,12 @@ function Model({ url }: { url: string }) {
 
 export function ModelViewer({ url }: { url: string }) {
   return (
-    <div className="h-[420px] w-full border border-black">
+    <div className="h-[min(68vh,680px)] min-h-[360px] w-full">
       <Canvas camera={{ position: [2, 2, 3], fov: 45 }}>
-        <ambientLight intensity={1.6} />
-        <directionalLight position={[4, 6, 4]} intensity={1.5} />
+        <color attach="background" args={["#e5ded0"]} />
+        <ambientLight intensity={1.25} />
+        <directionalLight position={[4, 6, 4]} intensity={1.7} />
+        <directionalLight position={[-3, 2, -4]} intensity={0.7} />
         <Suspense fallback={null}>
           <Bounds fit clip observe margin={1.2}>
             <Model url={url} />

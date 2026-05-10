@@ -1,4 +1,4 @@
--- Run this manually in Supabase SQL Editor when you want to create the MVP marketplace schema.
+-- Creates the MVP marketplace products table and storage policies.
 -- Product images are public for fast catalog rendering. Product models stay private
 -- and the app creates short-lived signed URLs for model previews/downloads.
 

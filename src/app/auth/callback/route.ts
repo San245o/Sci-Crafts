@@ -5,7 +5,9 @@ export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get("code");
   const nextParam = requestUrl.searchParams.get("next");
-  const next = nextParam?.startsWith("/") ? nextParam : "/marketplace";
+  const next = nextParam?.startsWith("/") && !nextParam.startsWith("//")
+    ? nextParam
+    : "/marketplace/onboarding?next=/marketplace";
 
   if (code) {
     const supabase = await createClient();

@@ -26,11 +26,15 @@ export function BuyButton({ productId }: { productId: string }) {
   }
 
   return (
-    <div className="space-y-2">
-      <button onClick={buy} disabled={loading} className="border border-black bg-black px-4 py-2 text-white disabled:opacity-50">
-        Buy
+    <div className="flex min-w-0 flex-col gap-2">
+      <button
+        onClick={buy}
+        disabled={loading}
+        className="inline-flex min-h-12 items-center justify-center rounded-full bg-[#d92d20] px-6 text-xs font-bold uppercase tracking-[0.18em] text-white transition hover:bg-[#b42318] disabled:cursor-wait disabled:opacity-50"
+      >
+        {loading ? "Checking account" : "Buy now"}
       </button>
-      {message ? <p className="text-sm">{message}</p> : null}
+      {message ? <p className="max-w-sm text-xs font-semibold leading-5 text-[#0f766e]">{message}</p> : null}
     </div>
   );
 }
