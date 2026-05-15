@@ -48,7 +48,7 @@ export function Description({ className = "" }: DescriptionProps) {
           trigger: scope,
           start: "top 70%",
           end: "top -20%", // increased scroll distance
-          scrub: 2.5, // smoother/slower scrubbing
+          scrub: 1, // reduced from 2.5 for better sync with lenis
         },
       });
 
@@ -171,8 +171,8 @@ export function Description({ className = "" }: DescriptionProps) {
 
       <div className="relative z-20 flex w-full max-w-[85rem] flex-col items-center justify-between gap-8 lg:gap-12 lg:flex-row pt-32 sm:pt-16 lg:pt-0 pb-12 sm:pb-0">
         {/* Left Side: Original Typography block */}
-        <div className="w-full flex-shrink shrink-0 text-left drop-shadow-xl lg:w-[58%] xl:w-[60%]">
-          <h2 className="relative mb-6 sm:mb-8 font-sans font-[800] text-[#FFB8BF] text-[clamp(3rem,9.2vw,5.5rem)] leading-[1.05] tracking-tight uppercase">
+        <div className="w-full flex-shrink shrink-0 text-left lg:w-[58%] xl:w-[60%]">
+          <h2 className="relative mb-6 sm:mb-8 font-sans font-[800] text-[#FFB8BF] text-[clamp(3rem,9.2vw,5.5rem)] leading-[1.05] tracking-tight uppercase" style={{ textShadow: "0 10px 15px rgba(0,0,0,0.1)" }}>
             <div className="badge-1 absolute -top-4 left-4 sm:-top-8 sm:-left-4 -rotate-[6deg] scale-0 z-30 inline-block px-2 py-0.5 sm:px-3 sm:py-1 font-sans font-extrabold text-[0.55rem] sm:text-sm tracking-widest uppercase bg-[#f4ead7] text-[#ef4444] border-[1.5px] sm:border-2 border-[#991b1b] shadow-[3px_3px_0_0_#7f1d1d] sm:shadow-[4px_4px_0_0_#7f1d1d] will-change-transform">
               CRAFTSMANSHIP
             </div>
@@ -195,7 +195,7 @@ export function Description({ className = "" }: DescriptionProps) {
               </span>
             </div>
           </h2>
-          <p className="desc-para max-w-3xl font-sans text-lg sm:text-lg md:text-xl font-[700] text-[#FFB8BF] leading-relaxed tracking-wide will-change-transform drop-shadow-md">
+          <p className="desc-para max-w-3xl font-sans text-lg sm:text-lg md:text-xl font-[700] text-[#FFB8BF] leading-relaxed tracking-wide will-change-transform" style={{ textShadow: "0 4px 6px rgba(0,0,0,0.1)" }}>
             Choose a model, send it on WhatsApp, and place your custom 3D print
             order instantly. Whether it&apos;s a miniature, decor piece, prototype, or
             personalized gift, we turn your selected design into a finished

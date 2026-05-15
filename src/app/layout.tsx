@@ -17,8 +17,15 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Sci-Fi Crafts",
-  description: "A Sci-Fi Crafts web experience.",
+  title: "Sci-Crafts - Bangalore 3D Printing Service | Custom Fabrication & Prototypes",
+  description: "Bangalore's premier 3D printing service offering custom fabrication, prototypes, and precision manufacturing with Bambu Lab printers and advanced materials like PLA, PETG, TPU, and ABS.",
+  keywords: "3D printing Bangalore, 3D printing service, custom fabrication, prototypes, 3D printing, Bambu Lab, precision manufacturing",
+  authors: [{ name: "Sci-Crafts" }],
+  openGraph: {
+    title: "Sci-Crafts - Bangalore 3D Printing Service",
+    description: "Transform your designs into reality with Bangalore's trusted 3D printing service",
+    type: "website",
+  },
 };
 
 export default function RootLayout({

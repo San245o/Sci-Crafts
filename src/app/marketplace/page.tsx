@@ -9,8 +9,8 @@ import {
 import { getSellerAvailability } from "@/lib/marketplace/seller-availability";
 import { getPublicUrls } from "@/lib/marketplace/storage";
 import type { Product } from "@/lib/marketplace/types";
-import { ProductLikeButton } from "./ProductLikeButton";
-import { SignOutButton } from "./SignOutButton";
+import { ProductLikeButton } from "../../../src/app/marketplace/ProductLikeButton";
+import { SignOutButton } from "../../../src/app/marketplace/SignOutButton";
 
 export const dynamic = "force-dynamic";
 
